@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:sentinel_native/sentinel_native.dart';
 
 import '../core/incident.dart';
@@ -23,15 +25,10 @@ import '../services/rule_pack_loader.dart';
 import '../services/scan_coordinator.dart';
 
 class AppState extends ChangeNotifier {
-  AppState({
-    required this.repo,
-    required this.native,
-    SnapshotSource? source,
-    Notifier? notifier,
-    RulePackLoader? loader,
-  })  : source = source ?? PlatformSnapshotSource(native),
-        notifier = notifier ?? Notifier(),
-        loader = loader ?? RulePackLoader(repo);
+  AppState({required this.repo, required this.native, SnapshotSource? source, Notifier? notifier, RulePackLoader? loader})
+    : source = source ?? PlatformSnapshotSource(native),
+      notifier = notifier ?? Notifier(),
+      loader = loader ?? RulePackLoader(repo);
 
   final Repository repo;
   final SentinelNative native;
@@ -55,8 +52,7 @@ class AppState extends ChangeNotifier {
   /// Pending URL shared into the app (share sheet / URL scheme).
   String? sharedUrl;
 
-  DevicePlatform get platform =>
-      Platform.isAndroid ? DevicePlatform.android : (Platform.isIOS ? DevicePlatform.ios : DevicePlatform.unknown);
+  DevicePlatform get platform => Platform.isAndroid ? DevicePlatform.android : (Platform.isIOS ? DevicePlatform.ios : DevicePlatform.unknown);
   String get lang => settings.languageCode ?? PlatformDispatcher.instance.locale.languageCode;
   bool get scanning => scanningMode != null;
 
@@ -263,7 +259,10 @@ class AppState extends ChangeNotifier {
         component: a.registrableDomain,
         componentLabel: a.displayHost,
         title: LText('Dangerous link: ${a.displayHost}', 'Lien dangereux : ${a.displayHost}'),
-        description: LText('Checked link scored ${a.score}/100 on phishing heuristics.', 'Le lien vérifié obtient ${a.score}/100 aux heuristiques d’hameçonnage.'),
+        description: LText(
+          'Checked link scored ${a.score}/100 on phishing heuristics.',
+          'Le lien vérifié obtient ${a.score}/100 aux heuristiques d’hameçonnage.',
+        ),
         severity: a.verdict == UrlVerdict.knownMalicious ? Severity.high : Severity.medium,
         confidence: a.verdict == UrlVerdict.knownMalicious ? Confidence.high : Confidence.medium,
         classification: a.verdict == UrlVerdict.knownMalicious ? Classification.confirmedMalicious : Classification.suspicious,
@@ -272,8 +271,12 @@ class AppState extends ChangeNotifier {
         limitations: const LText('A clean result does not guarantee a link is safe.', 'Un résultat propre ne garantit pas qu’un lien est sûr.'),
         evidence: {'url': a.input, for (final i in a.indicators.take(6)) i.id: i.label.en},
         remediation: const [
-          RemediationStep(LText('Do not enter credentials on this page. If you already did, change the password from a trusted device.',
-              'Ne saisissez pas d’identifiants. Si c’est déjà fait, changez le mot de passe depuis un appareil de confiance.')),
+          RemediationStep(
+            LText(
+              'Do not enter credentials on this page. If you already did, change the password from a trusted device.',
+              'Ne saisissez pas d’identifiants. Si c’est déjà fait, changez le mot de passe depuis un appareil de confiance.',
+            ),
+          ),
         ],
       );
       final scan = ScanReport(
@@ -304,10 +307,39 @@ class AppState extends ChangeNotifier {
     await repo.saveTrackers(trackers);
     final findings = TrackerAssessor.assess(trackers, devices.map((d) => '${d['address']}').toSet(), platform, now);
     reports = await repo.addReport(
-        ScanReport(id: 'TRK-${now.millisecondsSinceEpoch}', mode: ScanMode.tracker, platform: platform, startedAt: now, finishedAt: now, findings: findings, coverage: const []),
-        retentionDays: settings.retentionDays);
+      ScanReport(
+        id: 'TRK-${now.millisecondsSinceEpoch}',
+        mode: ScanMode.tracker,
+        platform: platform,
+        startedAt: now,
+        finishedAt: now,
+        findings: findings,
+        coverage: const [],
+      ),
+      retentionDays: settings.retentionDays,
+    );
     notifyListeners();
     return ('ok', findings);
+  }
+
+  /// Obtains an anonymous device token from the configured backend (HTTPS only).
+  Future<String> registerWithBackend(String url) async {
+    final base = Uri.tryParse(url);
+    if (base == null || (base.scheme != 'https' && base.host != '10.0.2.2')) return 'HTTPS required';
+    try {
+      final res = await http
+          .post(base.resolve('/v1/devices/register'), headers: {'Content-Type': 'application/json'}, body: '{}')
+          .timeout(const Duration(seconds: 10));
+      if (res.statusCode != 201) return 'HTTP ${res.statusCode}';
+      final token = (jsonDecode(res.body) as Map<String, dynamic>)['token'] as String;
+      await updateSettings((s) {
+        s.backendUrl = url;
+        s.backendToken = token;
+      });
+      return 'ok';
+    } catch (e) {
+      return '$e';
+    }
   }
 
   Future<String> updateRulePack() async {

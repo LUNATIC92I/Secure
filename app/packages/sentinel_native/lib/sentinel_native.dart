@@ -10,8 +10,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class SentinelNative {
-  SentinelNative({MethodChannel? channel})
-      : _channel = channel ?? const MethodChannel('io.sentinel/native') {
+  SentinelNative({MethodChannel? channel}) : _channel = channel ?? const MethodChannel('io.sentinel/native') {
     _channel.setMethodCallHandler((call) async {
       if (call.method == 'sharedText') _shared.add(null);
     });
@@ -40,11 +39,9 @@ class SentinelNative {
     return _deepCast(r) as Map<String, dynamic>?;
   }
 
-  Future<String> permissionStatus(String permission) async =>
-      await _channel.invokeMethod<String>('permissionStatus', {'permission': permission}) ?? 'denied';
+  Future<String> permissionStatus(String permission) async => await _channel.invokeMethod<String>('permissionStatus', {'permission': permission}) ?? 'denied';
 
-  Future<String> requestPermission(String permission) async =>
-      await _channel.invokeMethod<String>('requestPermission', {'permission': permission}) ?? 'denied';
+  Future<String> requestPermission(String permission) async => await _channel.invokeMethod<String>('requestPermission', {'permission': permission}) ?? 'denied';
 
   Future<bool> openSettings(String target, {String? package}) async =>
       await _channel.invokeMethod<bool>('openSettings', {'target': target, 'package': package}) ?? false;
@@ -57,11 +54,9 @@ class SentinelNative {
     }
   }
 
-  Future<bool> openDialer(String code) async =>
-      await _channel.invokeMethod<bool>('openDialer', {'code': code}) ?? false;
+  Future<bool> openDialer(String code) async => await _channel.invokeMethod<bool>('openDialer', {'code': code}) ?? false;
 
-  Future<Map<String, dynamic>> bleTrackerScan({int seconds = 10}) =>
-      _map('bleTrackerScan', {'seconds': seconds});
+  Future<Map<String, dynamic>> bleTrackerScan({int seconds = 10}) => _map('bleTrackerScan', {'seconds': seconds});
 
   Future<String?> consumeSharedText() => _channel.invokeMethod<String>('consumeSharedText');
 

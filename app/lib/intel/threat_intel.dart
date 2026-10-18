@@ -77,7 +77,7 @@ class LocalRulePackProvider implements ThreatIntelProvider {
 /// enabled "detailed URL analysis". Files are never uploaded — only their hash.
 class BackendProvider implements ThreatIntelProvider {
   BackendProvider({required this.baseUrl, required this.token, this.sendFullUrls = false, http.Client? client, this.timeout = const Duration(seconds: 8)})
-      : _client = client ?? http.Client();
+    : _client = client ?? http.Client();
 
   final Uri baseUrl;
   final String token;
@@ -99,13 +99,13 @@ class BackendProvider implements ThreatIntelProvider {
     final body = switch (kind) {
       IntelKind.fileHash => {'type': 'file_sha256', 'value': value.toLowerCase()},
       IntelKind.domain => {'type': 'domain_sha256', 'value': sha256.convert(utf8.encode(value.toLowerCase())).toString()},
-      IntelKind.url => sendFullUrls
-          ? {'type': 'url', 'value': value}
-          : {'type': 'domain_sha256', 'value': sha256.convert(utf8.encode((Uri.tryParse(value)?.host ?? value).toLowerCase())).toString()},
+      IntelKind.url =>
+        sendFullUrls
+            ? {'type': 'url', 'value': value}
+            : {'type': 'domain_sha256', 'value': sha256.convert(utf8.encode((Uri.tryParse(value)?.host ?? value).toLowerCase())).toString()},
     };
     final res = await _client
-        .post(baseUrl.resolve('/v1/reputation'),
-            headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'}, body: jsonEncode(body))
+        .post(baseUrl.resolve('/v1/reputation'), headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'}, body: jsonEncode(body))
         .timeout(timeout);
     if (res.statusCode == 429) throw IntelRateLimited();
     if (res.statusCode != 200) throw Exception('HTTP ${res.statusCode}');
@@ -125,7 +125,7 @@ class IntelRateLimited implements Exception {}
 /// health tracking and local fallback.
 class IntelService {
   IntelService({required this.providers, this.cacheTtl = const Duration(hours: 6), this.maxPerMinute = 20, DateTime Function()? clock})
-      : _clock = clock ?? DateTime.now;
+    : _clock = clock ?? DateTime.now;
 
   final List<ThreatIntelProvider> providers;
   final Duration cacheTtl;

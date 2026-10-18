@@ -34,31 +34,30 @@ class Incident {
   bool get open => status != IncidentStatus.resolved && status != IncidentStatus.falsePositive;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'finding': finding.toJson(),
-        'firstObserved': firstObserved.toIso8601String(),
-        'lastObserved': lastObserved.toIso8601String(),
-        'status': status.name,
-        'notes': notes,
-        'timeline': timeline.map((t) => t.toJson()).toList(),
-      };
+    'id': id,
+    'finding': finding.toJson(),
+    'firstObserved': firstObserved.toIso8601String(),
+    'lastObserved': lastObserved.toIso8601String(),
+    'status': status.name,
+    'notes': notes,
+    'timeline': timeline.map((t) => t.toJson()).toList(),
+  };
 
   factory Incident.fromJson(Map<String, dynamic> j) => Incident(
-        id: j['id'] as String,
-        finding: Finding.fromJson(Map<String, dynamic>.from(j['finding'] as Map)),
-        firstObserved: DateTime.parse(j['firstObserved'] as String),
-        lastObserved: DateTime.parse(j['lastObserved'] as String),
-        status: enumByName(IncidentStatus.values, j['status'], IncidentStatus.newIncident),
-        notes: j['notes'] as String? ?? '',
-        timeline: ((j['timeline'] as List?) ?? const []).map((e) => TimelineEvent.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
-      );
+    id: j['id'] as String,
+    finding: Finding.fromJson(Map<String, dynamic>.from(j['finding'] as Map)),
+    firstObserved: DateTime.parse(j['firstObserved'] as String),
+    lastObserved: DateTime.parse(j['lastObserved'] as String),
+    status: enumByName(IncidentStatus.values, j['status'], IncidentStatus.newIncident),
+    notes: j['notes'] as String? ?? '',
+    timeline: ((j['timeline'] as List?) ?? const []).map((e) => TimelineEvent.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+  );
 }
 
 /// Creates/updates incidents from scan findings. Pure logic, unit-tested.
 class IncidentManager {
   /// Only findings worth tracking become incidents.
-  static bool qualifies(Finding f) =>
-      f.severity.index >= Severity.medium.index && f.classification != Classification.informational;
+  static bool qualifies(Finding f) => f.severity.index >= Severity.medium.index && f.classification != Classification.informational;
 
   /// Returns the ids of incidents that are new or re-opened (for notifications).
   static Set<String> ingest(Map<String, Incident> incidents, List<Finding> findings, DateTime now) {
@@ -69,9 +68,13 @@ class IncidentManager {
       seen.add(id);
       final existing = incidents[id];
       if (existing == null) {
-        incidents[id] = Incident(id: id, finding: f, firstObserved: now, lastObserved: now, timeline: [
-          TimelineEvent(now, LText('Detected by ${f.ruleId}', 'Détecté par ${f.ruleId}')),
-        ]);
+        incidents[id] = Incident(
+          id: id,
+          finding: f,
+          firstObserved: now,
+          lastObserved: now,
+          timeline: [TimelineEvent(now, LText('Detected by ${f.ruleId}', 'Détecté par ${f.ruleId}'))],
+        );
         changed.add(id);
       } else {
         existing

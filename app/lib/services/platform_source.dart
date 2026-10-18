@@ -31,13 +31,6 @@ class PlatformSnapshotSource implements SnapshotSource {
       supported = true;
       limited = inv['limitedVisibility'] == true;
     }
-    return DeviceSnapshot(
-      platform: platform,
-      device: device,
-      network: network,
-      apps: apps,
-      appInventorySupported: supported,
-      appInventoryLimited: limited,
-    );
+    return DeviceSnapshot(platform: platform, device: device, network: network, apps: apps, appInventorySupported: supported, appInventoryLimited: limited);
   }
 }

@@ -29,7 +29,9 @@ class HistoryScreen extends StatelessWidget {
                     child: ListTile(
                       leading: Icon(r.background ? Icons.schedule : Icons.radar, color: worst == null ? SocColors.green : SocColors.severity(worst)),
                       title: Text(modeLabel(context, r.mode)),
-                      subtitle: Text('${fmtDate(context, r.finishedAt)} · ${context.tr('${r.findings.length} finding(s)', '${r.findings.length} résultat(s)')}'),
+                      subtitle: Text(
+                        '${fmtDate(context, r.finishedAt)} · ${context.tr('${r.findings.length} finding(s)', '${r.findings.length} résultat(s)')}',
+                      ),
                       trailing: worst == null ? null : SeverityPill(worst),
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ScanResultsScreen(report: r))),
                     ),

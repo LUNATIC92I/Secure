@@ -51,15 +51,24 @@ class UrlAnalysis {
   UrlAnalysis withRedirects(List<RedirectHop> hops, UrlAnalysis Function(String) analyse) {
     final extra = <UrlIndicator>[];
     final finalHop = hops.lastWhere((h) => h.error == null, orElse: () => RedirectHop(input, null));
-    if (hops.length > 3) extra.add(UrlIndicator('redirect_chain', LText('Long redirect chain (${hops.length} hops)', 'Longue chaîne de redirections (${hops.length} sauts)'), 10));
+    if (hops.length > 3) {
+      extra.add(UrlIndicator('redirect_chain', LText('Long redirect chain (${hops.length} hops)', 'Longue chaîne de redirections (${hops.length} sauts)'), 10));
+    }
     UrlAnalysis? destination;
     if (finalHop.url != input) {
       destination = analyse(finalHop.url);
       if (destination.registrableDomain != registrableDomain) {
-        extra.add(UrlIndicator('redirect_cross_domain',
-            LText('Redirects to a different domain: ${destination.displayHost}', 'Redirige vers un autre domaine : ${destination.displayHost}'), 10));
+        extra.add(
+          UrlIndicator(
+            'redirect_cross_domain',
+            LText('Redirects to a different domain: ${destination.displayHost}', 'Redirige vers un autre domaine : ${destination.displayHost}'),
+            10,
+          ),
+        );
       }
-      extra.addAll(destination.indicators.map((i) => UrlIndicator('dest_${i.id}', LText('Destination: ${i.label.en}', 'Destination : ${i.label.fr}'), i.weight)));
+      extra.addAll(
+        destination.indicators.map((i) => UrlIndicator('dest_${i.id}', LText('Destination: ${i.label.en}', 'Destination : ${i.label.fr}'), i.weight)),
+      );
     }
     final all = [...indicators, ...extra];
     final known = knownIndicator ?? destination?.knownIndicator;
@@ -116,17 +125,62 @@ class UrlAnalyzer {
   };
 
   static const shorteners = {
-    'bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'is.gd', 'cutt.ly', 'rebrand.ly', 'ow.ly', 's.id', 'shorturl.at', 'rb.gy', 'tiny.cc', 'buff.ly',
+    'bit.ly',
+    'tinyurl.com',
+    't.co',
+    'goo.gl',
+    'is.gd',
+    'cutt.ly',
+    'rebrand.ly',
+    'ow.ly',
+    's.id',
+    'shorturl.at',
+    'rb.gy',
+    'tiny.cc',
+    'buff.ly',
   };
 
   /// TLDs over-represented in abuse reports. Statistical, never conclusive.
   static const riskyTlds = {'zip', 'mov', 'top', 'xyz', 'click', 'country', 'gq', 'tk', 'ml', 'cf', 'work', 'rest', 'support', 'icu', 'cam'};
 
   static const _secondLevel = {
-    'co.uk', 'org.uk', 'ac.uk', 'gov.uk', 'com.au', 'net.au', 'co.jp', 'co.nz', 'com.br', 'com.mx', 'co.in', 'gouv.fr', 'asso.fr', 'com.tr', 'co.za', 'com.cn',
+    'co.uk',
+    'org.uk',
+    'ac.uk',
+    'gov.uk',
+    'com.au',
+    'net.au',
+    'co.jp',
+    'co.nz',
+    'com.br',
+    'com.mx',
+    'co.in',
+    'gouv.fr',
+    'asso.fr',
+    'com.tr',
+    'co.za',
+    'com.cn',
   };
 
-  static const _lureWords = ['login', 'signin', 'verify', 'verification', 'secure', 'account', 'update', 'password', 'wallet', 'confirm', 'unlock', 'suspend', 'billing', 'invoice', 'colis', 'livraison', 'remboursement'];
+  static const _lureWords = [
+    'login',
+    'signin',
+    'verify',
+    'verification',
+    'secure',
+    'account',
+    'update',
+    'password',
+    'wallet',
+    'confirm',
+    'unlock',
+    'suspend',
+    'billing',
+    'invoice',
+    'colis',
+    'livraison',
+    'remboursement',
+  ];
 
   static String registrable(String host) {
     final parts = host.split('.').where((p) => p.isNotEmpty).toList();
@@ -176,7 +230,13 @@ class UrlAnalyzer {
     final decoded = unicodeHost ? Uri.decodeComponent(host) : host.split('.').map(Punycode.decodeLabel).join('.');
     if (scheme == 'http') ind.add(const UrlIndicator('no_tls', LText('Not encrypted (http)', 'Non chiffré (http)'), 8));
     if (uri.userInfo.isNotEmpty) {
-      ind.add(const UrlIndicator('userinfo', LText('Contains “user@” before the host (classic disguise)', 'Contient « utilisateur@ » avant l’hôte (déguisement classique)'), 45));
+      ind.add(
+        const UrlIndicator(
+          'userinfo',
+          LText('Contains “user@” before the host (classic disguise)', 'Contient « utilisateur@ » avant l’hôte (déguisement classique)'),
+          45,
+        ),
+      );
     }
     if (RegExp(r'^\d{1,3}(\.\d{1,3}){3}$').hasMatch(host) || host.contains(':')) {
       ind.add(const UrlIndicator('ip_host', LText('Uses a raw IP address instead of a domain', 'Utilise une adresse IP au lieu d’un domaine'), 30));
@@ -188,11 +248,15 @@ class UrlAnalyzer {
       }
     }
     final labels = host.split('.');
-    if (labels.length > 4) ind.add(UrlIndicator('deep_subdomains', LText('${labels.length - 2} levels of subdomains', '${labels.length - 2} niveaux de sous-domaines'), 10));
+    if (labels.length > 4) {
+      ind.add(UrlIndicator('deep_subdomains', LText('${labels.length - 2} levels of subdomains', '${labels.length - 2} niveaux de sous-domaines'), 10));
+    }
     if ('-'.allMatches(host).length >= 3) ind.add(const UrlIndicator('hyphens', LText('Many hyphens in host', 'Nombreux tirets dans l’hôte'), 8));
     final reg = registrable(host);
     final tld = labels.last;
-    if (riskyTlds.contains(tld)) ind.add(UrlIndicator('risky_tld', LText('Top-level domain “.$tld” is frequently abused', 'Le domaine « .$tld » est souvent abusé'), 10));
+    if (riskyTlds.contains(tld)) {
+      ind.add(UrlIndicator('risky_tld', LText('Top-level domain “.$tld” is frequently abused', 'Le domaine « .$tld » est souvent abusé'), 10));
+    }
     if (shorteners.contains(host)) {
       ind.add(const UrlIndicator('shortener', LText('Link shortener hides the real destination', 'Le raccourcisseur masque la vraie destination'), 15));
     }
@@ -206,7 +270,13 @@ class UrlAnalyzer {
       final legit = b.value.any((d) => reg == d || host == d || host.endsWith('.$d'));
       if (legit) continue;
       if (flatHost.contains(b.key) || hostNoReg.contains(b.key)) {
-        ind.add(UrlIndicator('brand_${b.key}', LText('Mentions “${b.key}” but is not an official ${b.key} domain', 'Mentionne « ${b.key} » sans être un domaine officiel'), 40));
+        ind.add(
+          UrlIndicator(
+            'brand_${b.key}',
+            LText('Mentions “${b.key}” but is not an official ${b.key} domain', 'Mentionne « ${b.key} » sans être un domaine officiel'),
+            40,
+          ),
+        );
         break;
       }
     }
@@ -214,7 +284,9 @@ class UrlAnalyzer {
     final path = Uri.decodeFull(uri.path + (uri.hasQuery ? '?${uri.query}' : '')).toLowerCase();
     final lures = _lureWords.where(path.contains).toList();
     if (lures.isNotEmpty) {
-      ind.add(UrlIndicator('lure_words', LText('Lure words: ${lures.take(3).join(', ')}', 'Mots d’appât : ${lures.take(3).join(', ')}'), min(20, 7 * lures.length)));
+      ind.add(
+        UrlIndicator('lure_words', LText('Lure words: ${lures.take(3).join(', ')}', 'Mots d’appât : ${lures.take(3).join(', ')}'), min(20, 7 * lures.length)),
+      );
     }
     if (RegExp(r'\.(apk|exe|scr|msi|bat|js|vbs|jar|dmg|ipa)(\?|$)').hasMatch(uri.path.toLowerCase())) {
       ind.add(const UrlIndicator('executable', LText('Points to an executable/app file', 'Pointe vers un fichier exécutable/application'), 30));
@@ -241,15 +313,8 @@ class UrlAnalyzer {
     );
   }
 
-  UrlAnalysis _invalid(String raw) => UrlAnalysis(
-        input: raw,
-        uri: null,
-        displayHost: '',
-        registrableDomain: '',
-        indicators: const [],
-        verdict: UrlVerdict.invalid,
-        score: 0,
-      );
+  UrlAnalysis _invalid(String raw) =>
+      UrlAnalysis(input: raw, uri: null, displayHost: '', registrableDomain: '', indicators: const [], verdict: UrlVerdict.invalid, score: 0);
 
   /// Follows redirects hop by hop without downloading bodies or executing anything.
   /// Certificate validation is always on; a TLS failure ends the chain.
@@ -329,7 +394,7 @@ class Punycode {
     while (pos < input.length) {
       final oldi = i;
       var w = 1;
-      for (var k = base;; k += base) {
+      for (var k = base; ; k += base) {
         if (pos >= input.length) throw const FormatException('truncated');
         final dg = digit(input.codeUnitAt(pos++));
         i += dg * w;

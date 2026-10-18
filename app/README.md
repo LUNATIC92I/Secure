@@ -1,17 +1,8 @@
-# sentinel_mobile_soc
+# Sentinel Mobile SOC — Flutter app
 
-A new Flutter project.
+See the repository [README](../README.md) and [docs/](../docs). Layout:
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- `lib/core` models, snapshot, incidents, settings · `lib/detection` rules, rule pack, YARA-lite
+- `lib/engine` scan engine, scoring, URL/APK analysers, network probe, trackers · `lib/intel` threat-intel layer
+- `lib/services` encrypted store, repository, notifications, background scheduler · `lib/state` AppState · `lib/ui` screens
+- `packages/sentinel_native` Kotlin/Swift bridge · `tool/sign_rulepack.dart` rule-pack signing

@@ -62,25 +62,24 @@ abstract class DetectionRule {
     String? componentLabel,
     Map<String, String>? evidence,
     List<RemediationStep>? remediation,
-  }) =>
-      Finding(
-        ruleId: id,
-        ruleVersion: version,
-        platform: ctx.platform,
-        title: title,
-        description: description,
-        severity: severity,
-        confidence: confidence,
-        classification: classification,
-        category: category,
-        method: method,
-        limitations: limitations,
-        component: component,
-        componentLabel: componentLabel,
-        evidence: evidence,
-        remediation: remediation,
-        detectedAt: ctx.now,
-      );
+  }) => Finding(
+    ruleId: id,
+    ruleVersion: version,
+    platform: ctx.platform,
+    title: title,
+    description: description,
+    severity: severity,
+    confidence: confidence,
+    classification: classification,
+    category: category,
+    method: method,
+    limitations: limitations,
+    component: component,
+    componentLabel: componentLabel,
+    evidence: evidence,
+    remediation: remediation,
+    detectedAt: ctx.now,
+  );
 }
 
 /// Frequently used remediation steps.
@@ -91,17 +90,20 @@ class Steps {
   static RemediationStep advice(String en, String fr) => RemediationStep(LText(en, fr));
 
   static RemediationStep uninstall(String package) => RemediationStep(
-        const LText('Uninstall this app (system confirmation required)',
-            'Désinstaller cette application (confirmation système requise)'),
-        action: 'uninstall',
-        package: package,
-      );
+    const LText('Uninstall this app (system confirmation required)', 'Désinstaller cette application (confirmation système requise)'),
+    action: 'uninstall',
+    package: package,
+  );
 
-  static RemediationStep appDetails(String package) => settings('appDetails',
-      'Open app info to review or revoke permissions', 'Ouvrir les infos de l’app pour revoir ou révoquer ses autorisations',
-      package: package);
+  static RemediationStep appDetails(String package) => settings(
+    'appDetails',
+    'Open app info to review or revoke permissions',
+    'Ouvrir les infos de l’app pour revoir ou révoquer ses autorisations',
+    package: package,
+  );
 
   static final passwordsFromTrustedDevice = advice(
-      'If you suspect compromise, change important account passwords from a different, trusted device and enable multi-factor authentication.',
-      'En cas de doute, changez les mots de passe importants depuis un autre appareil de confiance et activez l’authentification multifacteur.');
+    'If you suspect compromise, change important account passwords from a different, trusted device and enable multi-factor authentication.',
+    'En cas de doute, changez les mots de passe importants depuis un autre appareil de confiance et activez l’authentification multifacteur.',
+  );
 }

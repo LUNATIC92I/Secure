@@ -16,9 +16,7 @@ abstract class KeyProvider {
 /// 256-bit data key kept in Android Keystore-backed storage / iOS Keychain.
 class PlatformKeyProvider implements KeyProvider {
   static const _name = 'sentinel_store_key_v1';
-  final _storage = const FlutterSecureStorage(
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
-  );
+  final _storage = const FlutterSecureStorage(iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device));
 
   @override
   Future<Uint8List> getOrCreateKey() async {

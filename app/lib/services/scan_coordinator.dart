@@ -10,8 +10,7 @@ import 'repository.dart';
 /// Runs a scan and applies its side effects (history, incidents, feedback,
 /// notifications). Shared by the UI and the background scheduler.
 class ScanCoordinator {
-  ScanCoordinator({required this.repo, required this.source, this.notifier, ScanEngine? engine})
-      : engine = engine ?? ScanEngine(networkProbe: NetworkProbe());
+  ScanCoordinator({required this.repo, required this.source, this.notifier, ScanEngine? engine}) : engine = engine ?? ScanEngine(networkProbe: NetworkProbe());
 
   final Repository repo;
   final SnapshotSource source;

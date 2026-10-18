@@ -98,8 +98,7 @@ class _Bin extends YaraCondition {
   final YaraCondition a, b;
   final bool isAnd;
   @override
-  bool eval(Set<String> hits, Set<String> all) =>
-      isAnd ? a.eval(hits, all) && b.eval(hits, all) : a.eval(hits, all) || b.eval(hits, all);
+  bool eval(Set<String> hits, Set<String> all) => isAnd ? a.eval(hits, all) && b.eval(hits, all) : a.eval(hits, all) || b.eval(hits, all);
 }
 
 /// quantity: -1 = all, 0 = any, N otherwise. set null = them.
@@ -150,7 +149,13 @@ List<_Tok> _lex(String s) {
       while (i < s.length && s[i] != '"') {
         if (s[i] == '\\' && i + 1 < s.length) {
           final n = s[i + 1];
-          b.write(switch (n) { 'n' => '\n', 't' => '\t', '"' => '"', '\\' => '\\', _ => n });
+          b.write(switch (n) {
+            'n' => '\n',
+            't' => '\t',
+            '"' => '"',
+            '\\' => '\\',
+            _ => n,
+          });
           i += 2;
         } else {
           b.write(s[i++]);
@@ -303,7 +308,9 @@ class _Parser {
     final out = <BytePattern>[];
     if (!wide || ascii) out.add(BytePattern(norm, List.filled(norm.length, true), nocase: nocase));
     if (wide) {
-      final w = <int>[for (final b in norm) ...[b, 0]];
+      final w = <int>[
+        for (final b in norm) ...[b, 0],
+      ];
       out.add(BytePattern(w, List.filled(w.length, true), nocase: nocase));
     }
     return out;

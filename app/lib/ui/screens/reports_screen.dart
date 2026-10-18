@@ -16,7 +16,9 @@ String buildPostureReport(AppState s, String lang) {
     ..writeln('# ${s.settings.brandName} — ${t('Security posture report', 'Rapport de posture de sécurité')}')
     ..writeln()
     ..writeln('${t('Generated', 'Généré')}: ${DateTime.now().toIso8601String()}  ')
-    ..writeln('${t('Device', 'Appareil')}: ${s.platformInfo['manufacturer'] ?? ''} ${s.platformInfo['model'] ?? ''} (${s.platform.name} ${s.platformInfo['osVersion'] ?? ''})  ')
+    ..writeln(
+      '${t('Device', 'Appareil')}: ${s.platformInfo['manufacturer'] ?? ''} ${s.platformInfo['model'] ?? ''} (${s.platform.name} ${s.platformInfo['osVersion'] ?? ''})  ',
+    )
     ..writeln('${t('Rule pack', 'Pack de règles')}: v${s.pack.version}${s.pack.verified ? ' (signature verified)' : ''}');
   if (r == null || score == null) {
     b.writeln('\n${t('No scan has been completed yet.', 'Aucune analyse terminée.')}');
@@ -32,7 +34,9 @@ String buildPostureReport(AppState s, String lang) {
     ..writeln()
     ..writeln('## ${t('Findings', 'Résultats')}');
   for (final f in r.findings) {
-    b.writeln('- [${f.severity.name.toUpperCase()} · ${f.classification.name} · ${f.confidence.name}] ${f.title.of(lang)} (${f.ruleId}${f.isActive ? '' : ', ${f.status.name}'})');
+    b.writeln(
+      '- [${f.severity.name.toUpperCase()} · ${f.classification.name} · ${f.confidence.name}] ${f.title.of(lang)} (${f.ruleId}${f.isActive ? '' : ', ${f.status.name}'})',
+    );
   }
   if (r.findings.isEmpty) b.writeln(t('- None in checked areas.', '- Aucun dans les zones vérifiées.'));
   b
@@ -43,8 +47,12 @@ String buildPostureReport(AppState s, String lang) {
   }
   b
     ..writeln()
-    ..writeln(t('_A clean report is not a guarantee that the device is free of malware or surveillance._',
-        '_Un rapport propre ne garantit pas l’absence de malware ou de surveillance._'));
+    ..writeln(
+      t(
+        '_A clean report is not a guarantee that the device is free of malware or surveillance._',
+        '_Un rapport propre ne garantit pas l’absence de malware ou de surveillance._',
+      ),
+    );
   return b.toString();
 }
 
@@ -56,19 +64,34 @@ class ReportsScreen extends StatelessWidget {
     final state = context.watch<AppState>();
     final md = buildPostureReport(state, context.lang);
     return Scaffold(
-      appBar: AppBar(title: Text(context.tr('Security report', 'Rapport de sécurité')), actions: [
-        IconButton(
-          tooltip: context.tr('Share / export', 'Partager / exporter'),
-          icon: const Icon(Icons.ios_share),
-          onPressed: () => SharePlus.instance.share(ShareParams(text: md, subject: 'Sentinel report')),
-        ),
-      ]),
+      appBar: AppBar(
+        title: Text(context.tr('Security report', 'Rapport de sécurité')),
+        actions: [
+          IconButton(
+            tooltip: context.tr('Share / export', 'Partager / exporter'),
+            icon: const Icon(Icons.ios_share),
+            onPressed: () => SharePlus.instance.share(ShareParams(text: md, subject: 'Sentinel report')),
+          ),
+        ],
+      ),
       body: Responsive(
-        child: ListView(padding: const EdgeInsets.all(16), children: [
-          InfoBanner(context.tr('Exporting is your choice: the report leaves the device only through the share sheet.',
-              'L’export est votre choix : le rapport ne quitte l’appareil que via le menu de partage.')),
-          Card(child: Padding(padding: const EdgeInsets.all(16), child: SelectableText(md, style: const TextStyle(fontFamily: 'monospace', fontSize: 12.5)))),
-        ]),
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            InfoBanner(
+              context.tr(
+                'Exporting is your choice: the report leaves the device only through the share sheet.',
+                'L’export est votre choix : le rapport ne quitte l’appareil que via le menu de partage.',
+              ),
+            ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SelectableText(md, style: const TextStyle(fontFamily: 'monospace', fontSize: 12.5)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

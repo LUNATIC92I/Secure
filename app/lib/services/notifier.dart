@@ -74,12 +74,20 @@ class Notifier {
       id: 1001,
       title: title,
       body: '${top.severity.name.toUpperCase()} · $certainty$next',
-      notificationDetails: const NotificationDetails(android: _channel, iOS: DarwinNotificationDetails(threadIdentifier: 'alerts')),
+      notificationDetails: const NotificationDetails(
+        android: _channel,
+        iOS: DarwinNotificationDetails(threadIdentifier: 'alerts'),
+      ),
     );
   }
 
   Future<void> notifyText(int id, String title, String body) async {
     await init();
-    await _plugin.show(id: id, title: title, body: body, notificationDetails: const NotificationDetails(android: _channel));
+    await _plugin.show(
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: const NotificationDetails(android: _channel),
+    );
   }
 }

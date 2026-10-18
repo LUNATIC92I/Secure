@@ -19,7 +19,10 @@ Future<void> main() async {
   } catch (_) {
     // Scheduling is optional; the app stays fully usable without it.
   }
-  final state = AppState(repo: Repository(SecureStore(keys: PlatformKeyProvider())), native: SentinelNative());
+  final state = AppState(
+    repo: Repository(SecureStore(keys: PlatformKeyProvider())),
+    native: SentinelNative(),
+  );
   runApp(ChangeNotifierProvider.value(value: state, child: const SentinelApp()));
   await state.init();
 }
@@ -38,16 +41,12 @@ class SentinelApp extends StatelessWidget {
       themeMode: ThemeMode.dark,
       locale: state.settings.languageCode == null ? null : Locale(state.settings.languageCode!),
       supportedLocales: const [Locale('en'), Locale('fr')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
       home: !state.loaded
           ? const SplashScreen()
           : state.settings.onboarded
-              ? const HomeShell()
-              : const OnboardingScreen(),
+          ? const HomeShell()
+          : const OnboardingScreen(),
     );
   }
 }

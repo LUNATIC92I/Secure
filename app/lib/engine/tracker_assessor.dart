@@ -11,22 +11,22 @@ class TrackerSighting {
   int? rssi;
 
   Map<String, dynamic> toJson() => {
-        'address': address,
-        'kind': kind,
-        'firstSeen': firstSeen.toIso8601String(),
-        'lastSeen': lastSeen.toIso8601String(),
-        'scans': scans,
-        'rssi': rssi,
-      };
+    'address': address,
+    'kind': kind,
+    'firstSeen': firstSeen.toIso8601String(),
+    'lastSeen': lastSeen.toIso8601String(),
+    'scans': scans,
+    'rssi': rssi,
+  };
 
   factory TrackerSighting.fromJson(Map<String, dynamic> j) => TrackerSighting(
-        address: j['address'] as String,
-        kind: j['kind'] as String,
-        firstSeen: DateTime.parse(j['firstSeen'] as String),
-        lastSeen: DateTime.parse(j['lastSeen'] as String),
-        scans: (j['scans'] as num?)?.toInt() ?? 1,
-        rssi: (j['rssi'] as num?)?.toInt(),
-      );
+    address: j['address'] as String,
+    kind: j['kind'] as String,
+    firstSeen: DateTime.parse(j['firstSeen'] as String),
+    lastSeen: DateTime.parse(j['lastSeen'] as String),
+    scans: (j['scans'] as num?)?.toInt() ?? 1,
+    rssi: (j['rssi'] as num?)?.toInt(),
+  );
 }
 
 /// Turns repeated BLE sightings into tracking-risk findings.
@@ -70,39 +70,59 @@ class TrackerAssessor {
     for (final s in history.where((s) => seenNow.contains(s.address))) {
       final persistent = s.scans >= 2 && s.lastSeen.difference(s.firstSeen) >= persistence;
       final label = kindLabels[s.kind] ?? LText(s.kind, s.kind);
-      out.add(Finding(
-        ruleId: 'TRK-001',
-        ruleVersion: 1,
-        platform: platform,
-        component: '${s.kind}:${s.address}',
-        componentLabel: label.en,
-        detectedAt: now,
-        title: persistent
-            ? LText('Tracker seen repeatedly near you: ${label.en}', 'Traceur vu à plusieurs reprises près de vous : ${label.fr}')
-            : LText('Tracker nearby: ${label.en}', 'Traceur à proximité : ${label.fr}'),
-        description: persistent
-            ? LText('The same tracker identifier was observed in ${s.scans} scans over ${s.lastSeen.difference(s.firstSeen).inMinutes} minutes. If you moved between scans, it may be travelling with you.',
-                'Le même identifiant a été observé dans ${s.scans} scans sur ${s.lastSeen.difference(s.firstSeen).inMinutes} minutes. Si vous vous êtes déplacé entre les scans, il voyage peut-être avec vous.')
-            : const LText('Trackers belonging to people around you are common (public transport, cafés). Scan again later in a different place to see if it follows you.',
-                'Les traceurs des personnes autour de vous sont courants (transports, cafés). Rescannez plus tard ailleurs pour voir s’il vous suit.'),
-        severity: persistent ? Severity.medium : Severity.informational,
-        confidence: persistent ? Confidence.medium : Confidence.low,
-        classification: persistent ? Classification.unverified : Classification.informational,
-        category: FindingCategory.tracking,
-        method: const LText('Foreground Bluetooth LE advertisement scan', 'Scan Bluetooth LE au premier plan'),
-        limitations: const LText('Identifiers rotate; trackers not advertising (or filtered by the OS) are invisible. This is not a universal tracker detector.',
-            'Les identifiants changent ; les traceurs qui n’émettent pas (ou filtrés par l’OS) sont invisibles. Ce n’est pas un détecteur universel.'),
-        evidence: {'identifier': s.address, 'scans': '${s.scans}', 'firstSeen': s.firstSeen.toIso8601String(), 'rssi': '${s.rssi}'},
-        remediation: [
-          platform == DevicePlatform.ios
-              ? const RemediationStep(LText('Use Find My → Items → Identify Found Item, and keep Tracking Notifications on.',
-                  'Utilisez Localiser → Objets → Identifier un objet trouvé et gardez les notifications de suivi activées.'))
-              : const RemediationStep(LText('Use Settings → Safety & emergency → Unknown tracker alerts → Scan now.',
-                  'Utilisez Paramètres → Sécurité et urgence → Alertes de traceurs inconnus → Rechercher.')),
-          const RemediationStep(LText('If you feel unsafe, contact the police; do not destroy the tracker (it may be evidence).',
-              'Si vous vous sentez en danger, contactez la police ; ne détruisez pas le traceur (preuve possible).')),
-        ],
-      ));
+      out.add(
+        Finding(
+          ruleId: 'TRK-001',
+          ruleVersion: 1,
+          platform: platform,
+          component: '${s.kind}:${s.address}',
+          componentLabel: label.en,
+          detectedAt: now,
+          title: persistent
+              ? LText('Tracker seen repeatedly near you: ${label.en}', 'Traceur vu à plusieurs reprises près de vous : ${label.fr}')
+              : LText('Tracker nearby: ${label.en}', 'Traceur à proximité : ${label.fr}'),
+          description: persistent
+              ? LText(
+                  'The same tracker identifier was observed in ${s.scans} scans over ${s.lastSeen.difference(s.firstSeen).inMinutes} minutes. If you moved between scans, it may be travelling with you.',
+                  'Le même identifiant a été observé dans ${s.scans} scans sur ${s.lastSeen.difference(s.firstSeen).inMinutes} minutes. Si vous vous êtes déplacé entre les scans, il voyage peut-être avec vous.',
+                )
+              : const LText(
+                  'Trackers belonging to people around you are common (public transport, cafés). Scan again later in a different place to see if it follows you.',
+                  'Les traceurs des personnes autour de vous sont courants (transports, cafés). Rescannez plus tard ailleurs pour voir s’il vous suit.',
+                ),
+          severity: persistent ? Severity.medium : Severity.informational,
+          confidence: persistent ? Confidence.medium : Confidence.low,
+          classification: persistent ? Classification.unverified : Classification.informational,
+          category: FindingCategory.tracking,
+          method: const LText('Foreground Bluetooth LE advertisement scan', 'Scan Bluetooth LE au premier plan'),
+          limitations: const LText(
+            'Identifiers rotate; trackers not advertising (or filtered by the OS) are invisible. This is not a universal tracker detector.',
+            'Les identifiants changent ; les traceurs qui n’émettent pas (ou filtrés par l’OS) sont invisibles. Ce n’est pas un détecteur universel.',
+          ),
+          evidence: {'identifier': s.address, 'scans': '${s.scans}', 'firstSeen': s.firstSeen.toIso8601String(), 'rssi': '${s.rssi}'},
+          remediation: [
+            platform == DevicePlatform.ios
+                ? const RemediationStep(
+                    LText(
+                      'Use Find My → Items → Identify Found Item, and keep Tracking Notifications on.',
+                      'Utilisez Localiser → Objets → Identifier un objet trouvé et gardez les notifications de suivi activées.',
+                    ),
+                  )
+                : const RemediationStep(
+                    LText(
+                      'Use Settings → Safety & emergency → Unknown tracker alerts → Scan now.',
+                      'Utilisez Paramètres → Sécurité et urgence → Alertes de traceurs inconnus → Rechercher.',
+                    ),
+                  ),
+            const RemediationStep(
+              LText(
+                'If you feel unsafe, contact the police; do not destroy the tracker (it may be evidence).',
+                'Si vous vous sentez en danger, contactez la police ; ne détruisez pas le traceur (preuve possible).',
+              ),
+            ),
+          ],
+        ),
+      );
     }
     return out;
   }

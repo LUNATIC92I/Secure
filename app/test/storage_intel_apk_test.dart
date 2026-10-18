@@ -56,13 +56,27 @@ void main() {
       expect(s.networkChecks, isFalse);
       expect(s.notificationsEnabled, isFalse);
       final old = ScanReport(
-          id: 'old', mode: ScanMode.quick, platform: DevicePlatform.android,
-          startedAt: DateTime.now().subtract(const Duration(days: 40)), finishedAt: DateTime.now().subtract(const Duration(days: 40)),
-          findings: const [], coverage: const []);
+        id: 'old',
+        mode: ScanMode.quick,
+        platform: DevicePlatform.android,
+        startedAt: DateTime.now().subtract(const Duration(days: 40)),
+        finishedAt: DateTime.now().subtract(const Duration(days: 40)),
+        findings: const [],
+        coverage: const [],
+      );
       await repo.addReport(old, retentionDays: 90);
       final kept = await repo.addReport(
-          ScanReport(id: 'new', mode: ScanMode.quick, platform: DevicePlatform.android, startedAt: DateTime.now(), finishedAt: DateTime.now(), findings: const [], coverage: const []),
-          retentionDays: 30);
+        ScanReport(
+          id: 'new',
+          mode: ScanMode.quick,
+          platform: DevicePlatform.android,
+          startedAt: DateTime.now(),
+          finishedAt: DateTime.now(),
+          findings: const [],
+          coverage: const [],
+        ),
+        retentionDays: 30,
+      );
       expect(kept.map((r) => r.id), ['new']);
       await repo.saveSettings(AppSettings(cloudIntel: true));
       expect((await repo.loadSettings()).cloudIntel, isTrue);
@@ -82,10 +96,12 @@ void main() {
         calls++;
         return http.Response('{}', 200);
       });
-      final svc = IntelService(providers: [
-        LocalRulePackProvider(await bundledPack()),
-        BackendProvider(baseUrl: Uri.parse('https://intel.example'), token: 't', client: client),
-      ]);
+      final svc = IntelService(
+        providers: [
+          LocalRulePackProvider(await bundledPack()),
+          BackendProvider(baseUrl: Uri.parse('https://intel.example'), token: 't', client: client),
+        ],
+      );
       final v = await svc.lookup(IntelKind.fileHash, '275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f');
       expect(calls, 0);
       expect(v.single.local, isTrue);
@@ -101,7 +117,9 @@ void main() {
         expect(req.headers['Authorization'], 'Bearer t');
         return http.Response(jsonEncode({'verdict': 'clean', 'provider': 'mock'}), 200);
       });
-      final svc = IntelService(providers: [BackendProvider(baseUrl: Uri.parse('https://intel.example'), token: 't', client: client)]);
+      final svc = IntelService(
+        providers: [BackendProvider(baseUrl: Uri.parse('https://intel.example'), token: 't', client: client)],
+      );
       final v = await svc.lookup(IntelKind.url, 'https://secret-token.example.com/reset?t=abc', allowRemote: true);
       expect(v.single.status, IntelStatus.clean);
       expect(bodies.single['type'], 'domain_sha256');
@@ -117,7 +135,10 @@ void main() {
 
     test('client-side rate limiting', () async {
       final client = MockClient((_) async => http.Response(jsonEncode({'verdict': 'unknown'}), 200));
-      final svc = IntelService(providers: [BackendProvider(baseUrl: Uri.parse('https://i.example'), token: 't', client: client)], maxPerMinute: 2);
+      final svc = IntelService(
+        providers: [BackendProvider(baseUrl: Uri.parse('https://i.example'), token: 't', client: client)],
+        maxPerMinute: 2,
+      );
       final results = [for (var i = 0; i < 3; i++) (await svc.lookup(IntelKind.domain, 'x$i.example', allowRemote: true)).single];
       expect(results.last.status, IntelStatus.error);
       expect(results.last.detail, contains('rate limited'));
@@ -134,7 +155,14 @@ void main() {
           'parsed': true,
           'sha256': '275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f',
           'package': 'io.sentinel.testfixture.trojan',
-          'requestedPermissions': ['${p}RECORD_AUDIO', '${p}READ_SMS', '${p}READ_CALL_LOG', '${p}ACCESS_BACKGROUND_LOCATION', '${p}SEND_SMS', '${p}RECEIVE_SMS'],
+          'requestedPermissions': [
+            '${p}RECORD_AUDIO',
+            '${p}READ_SMS',
+            '${p}READ_CALL_LOG',
+            '${p}ACCESS_BACKGROUND_LOCATION',
+            '${p}SEND_SMS',
+            '${p}RECEIVE_SMS',
+          ],
           'boundServicePermissions': ['${p}BIND_ACCESSIBILITY_SERVICE'],
           'signingSha256': ['d' * 64],
           'targetSdk': 22,
@@ -147,7 +175,12 @@ void main() {
           'nativeAbis': [],
           'embeddedPayloads': ['assets/payload.dex'],
           'yara': [
-            {'rule': 'Dynamic_Code_Loading', 'entry': 'classes.dex', 'strings': [r'$a', r'$c'], 'meta': {'severity': 'low'}}
+            {
+              'rule': 'Dynamic_Code_Loading',
+              'entry': 'classes.dex',
+              'strings': [r'$a', r'$c'],
+              'meta': {'severity': 'low'},
+            },
           ],
         },
       );
@@ -165,7 +198,14 @@ void main() {
       final r = ApkAnalyzer(await bundledPack()).build(
         fileName: 'ok.apk',
         now: DateTime(2026),
-        native: {'parsed': true, 'sha256': 'e' * 64, 'package': 'com.example.ok', 'requestedPermissions': ['${p}INTERNET'], 'signingSha256': ['f' * 64], 'targetSdk': 35},
+        native: {
+          'parsed': true,
+          'sha256': 'e' * 64,
+          'package': 'com.example.ok',
+          'requestedPermissions': ['${p}INTERNET'],
+          'signingSha256': ['f' * 64],
+          'targetSdk': 35,
+        },
         scan: {'yara': [], 'embeddedPayloads': []},
       );
       expect(r.findings, isEmpty);

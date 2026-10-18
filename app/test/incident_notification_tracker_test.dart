@@ -89,14 +89,14 @@ void main() {
   group('tracker assessment', () {
     test('single sighting is informational; persistent sighting is medium/unverified', () {
       var h = TrackerAssessor.merge([], [
-        {'address': 'AA', 'kind': 'apple_findmy', 'rssi': -60}
+        {'address': 'AA', 'kind': 'apple_findmy', 'rssi': -60},
       ], t0);
       var out = TrackerAssessor.assess(h, {'AA'}, DevicePlatform.android, t0);
       expect(out.single.severity, Severity.informational);
 
       final later = t0.add(const Duration(minutes: 45));
       h = TrackerAssessor.merge(h, [
-        {'address': 'AA', 'kind': 'apple_findmy', 'rssi': -55}
+        {'address': 'AA', 'kind': 'apple_findmy', 'rssi': -55},
       ], later);
       out = TrackerAssessor.assess(h, {'AA'}, DevicePlatform.android, later);
       expect(out.single.severity, Severity.medium);
@@ -105,7 +105,7 @@ void main() {
 
     test('old sightings expire', () {
       final h = TrackerAssessor.merge([], [
-        {'address': 'AA', 'kind': 'tile'}
+        {'address': 'AA', 'kind': 'tile'},
       ], t0);
       expect(TrackerAssessor.merge(h, [], t0.add(const Duration(days: 4))), isEmpty);
     });

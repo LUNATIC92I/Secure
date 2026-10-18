@@ -62,10 +62,7 @@ void main() {
 
   test('redirect results: cross-domain destination is scored', () {
     final base = a.analyse('https://bit.ly/x');
-    final r = base.withRedirects([
-      RedirectHop('https://bit.ly/x', 301),
-      RedirectHop('https://paypal-login.example.top/', 200),
-    ], a.analyse);
+    final r = base.withRedirects([RedirectHop('https://bit.ly/x', 301), RedirectHop('https://paypal-login.example.top/', 200)], a.analyse);
     expect(r.indicators.map((i) => i.id), containsAll(['redirect_cross_domain', 'dest_brand_paypal']));
     expect(r.score, greaterThan(base.score));
   });

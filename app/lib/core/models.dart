@@ -63,19 +63,7 @@ enum Classification {
   informational,
 }
 
-enum FindingCategory {
-  malware,
-  stalkerware,
-  permissions,
-  configuration,
-  integrity,
-  network,
-  privacy,
-  tracking,
-  microphone,
-  phishing,
-  apk,
-}
+enum FindingCategory { malware, stalkerware, permissions, configuration, integrity, network, privacy, tracking, microphone, phishing, apk }
 
 enum RemediationStatus { open, inProgress, resolved, accepted, falsePositive }
 
@@ -91,18 +79,14 @@ class RemediationStep {
   final String? package;
 
   Map<String, dynamic> toJson() => {
-        'label': label.toJson(),
-        if (action != null) 'action': action,
-        if (target != null) 'target': target,
-        if (package != null) 'package': package,
-      };
+    'label': label.toJson(),
+    if (action != null) 'action': action,
+    if (target != null) 'target': target,
+    if (package != null) 'package': package,
+  };
 
-  factory RemediationStep.fromJson(Map<String, dynamic> j) => RemediationStep(
-        LText.fromJson(j['label']),
-        action: j['action'] as String?,
-        target: j['target'] as String?,
-        package: j['package'] as String?,
-      );
+  factory RemediationStep.fromJson(Map<String, dynamic> j) =>
+      RemediationStep(LText.fromJson(j['label']), action: j['action'] as String?, target: j['target'] as String?, package: j['package'] as String?);
 }
 
 class Finding {
@@ -125,10 +109,10 @@ class Finding {
     DateTime? detectedAt,
     this.status = RemediationStatus.open,
     String? id,
-  })  : evidence = evidence ?? const {},
-        remediation = remediation ?? const [],
-        detectedAt = detectedAt ?? DateTime.now(),
-        id = id ?? fingerprintFor(ruleId, component);
+  }) : evidence = evidence ?? const {},
+       remediation = remediation ?? const [],
+       detectedAt = detectedAt ?? DateTime.now(),
+       id = id ?? fingerprintFor(ruleId, component);
 
   /// Stable across scans for the same rule + component, which lets the app
   /// deduplicate notifications and carry user feedback forward.
@@ -159,52 +143,49 @@ class Finding {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'ruleId': ruleId,
-        'ruleVersion': ruleVersion,
-        'detectedAt': detectedAt.toIso8601String(),
-        'platform': platform.name,
-        'component': component,
-        'componentLabel': componentLabel,
-        'title': title.toJson(),
-        'description': description.toJson(),
-        'severity': severity.name,
-        'confidence': confidence.name,
-        'classification': classification.name,
-        'category': category.name,
-        'evidence': evidence,
-        'method': method.toJson(),
-        'limitations': limitations.toJson(),
-        'remediation': remediation.map((r) => r.toJson()).toList(),
-        'status': status.name,
-      };
+    'id': id,
+    'ruleId': ruleId,
+    'ruleVersion': ruleVersion,
+    'detectedAt': detectedAt.toIso8601String(),
+    'platform': platform.name,
+    'component': component,
+    'componentLabel': componentLabel,
+    'title': title.toJson(),
+    'description': description.toJson(),
+    'severity': severity.name,
+    'confidence': confidence.name,
+    'classification': classification.name,
+    'category': category.name,
+    'evidence': evidence,
+    'method': method.toJson(),
+    'limitations': limitations.toJson(),
+    'remediation': remediation.map((r) => r.toJson()).toList(),
+    'status': status.name,
+  };
 
   factory Finding.fromJson(Map<String, dynamic> j) => Finding(
-        id: j['id'] as String,
-        ruleId: j['ruleId'] as String,
-        ruleVersion: (j['ruleVersion'] as num?)?.toInt() ?? 1,
-        detectedAt: DateTime.parse(j['detectedAt'] as String),
-        platform: _enum(DevicePlatform.values, j['platform'], DevicePlatform.unknown),
-        component: j['component'] as String?,
-        componentLabel: j['componentLabel'] as String?,
-        title: LText.fromJson(j['title']),
-        description: LText.fromJson(j['description']),
-        severity: _enum(Severity.values, j['severity'], Severity.informational),
-        confidence: _enum(Confidence.values, j['confidence'], Confidence.low),
-        classification: _enum(Classification.values, j['classification'], Classification.unverified),
-        category: _enum(FindingCategory.values, j['category'], FindingCategory.configuration),
-        evidence: (j['evidence'] as Map?)?.map((k, v) => MapEntry('$k', '$v')) ?? const {},
-        method: LText.fromJson(j['method']),
-        limitations: LText.fromJson(j['limitations']),
-        remediation: ((j['remediation'] as List?) ?? const [])
-            .map((e) => RemediationStep.fromJson(Map<String, dynamic>.from(e as Map)))
-            .toList(),
-        status: _enum(RemediationStatus.values, j['status'], RemediationStatus.open),
-      );
+    id: j['id'] as String,
+    ruleId: j['ruleId'] as String,
+    ruleVersion: (j['ruleVersion'] as num?)?.toInt() ?? 1,
+    detectedAt: DateTime.parse(j['detectedAt'] as String),
+    platform: _enum(DevicePlatform.values, j['platform'], DevicePlatform.unknown),
+    component: j['component'] as String?,
+    componentLabel: j['componentLabel'] as String?,
+    title: LText.fromJson(j['title']),
+    description: LText.fromJson(j['description']),
+    severity: _enum(Severity.values, j['severity'], Severity.informational),
+    confidence: _enum(Confidence.values, j['confidence'], Confidence.low),
+    classification: _enum(Classification.values, j['classification'], Classification.unverified),
+    category: _enum(FindingCategory.values, j['category'], FindingCategory.configuration),
+    evidence: (j['evidence'] as Map?)?.map((k, v) => MapEntry('$k', '$v')) ?? const {},
+    method: LText.fromJson(j['method']),
+    limitations: LText.fromJson(j['limitations']),
+    remediation: ((j['remediation'] as List?) ?? const []).map((e) => RemediationStep.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+    status: _enum(RemediationStatus.values, j['status'], RemediationStatus.open),
+  );
 }
 
-T _enum<T extends Enum>(List<T> values, Object? name, T fallback) =>
-    values.firstWhere((v) => v.name == name, orElse: () => fallback);
+T _enum<T extends Enum>(List<T> values, Object? name, T fallback) => values.firstWhere((v) => v.name == name, orElse: () => fallback);
 
 T enumByName<T extends Enum>(List<T> values, Object? name, T fallback) => _enum(values, name, fallback);
 
@@ -219,19 +200,14 @@ class CoverageItem {
   final CoverageStatus status;
   final LText? note;
 
-  Map<String, dynamic> toJson() => {
-        'checkId': checkId,
-        'label': label.toJson(),
-        'status': status.name,
-        if (note != null) 'note': note!.toJson(),
-      };
+  Map<String, dynamic> toJson() => {'checkId': checkId, 'label': label.toJson(), 'status': status.name, if (note != null) 'note': note!.toJson()};
 
   factory CoverageItem.fromJson(Map<String, dynamic> j) => CoverageItem(
-        j['checkId'] as String,
-        LText.fromJson(j['label']),
-        _enum(CoverageStatus.values, j['status'], CoverageStatus.unavailable),
-        note: j['note'] == null ? null : LText.fromJson(j['note']),
-      );
+    j['checkId'] as String,
+    LText.fromJson(j['label']),
+    _enum(CoverageStatus.values, j['status'], CoverageStatus.unavailable),
+    note: j['note'] == null ? null : LText.fromJson(j['note']),
+  );
 }
 
 enum ScanMode { quick, comprehensive, daily, apk, url, tracker }
@@ -266,34 +242,30 @@ class ScanReport {
   final bool background;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'mode': mode.name,
-        'platform': platform.name,
-        'startedAt': startedAt.toIso8601String(),
-        'finishedAt': finishedAt.toIso8601String(),
-        'findings': findings.map((f) => f.toJson()).toList(),
-        'coverage': coverage.map((c) => c.toJson()).toList(),
-        'errors': errors,
-        'rulePackVersion': rulePackVersion,
-        'appsAnalyzed': appsAnalyzed,
-        'background': background,
-      };
+    'id': id,
+    'mode': mode.name,
+    'platform': platform.name,
+    'startedAt': startedAt.toIso8601String(),
+    'finishedAt': finishedAt.toIso8601String(),
+    'findings': findings.map((f) => f.toJson()).toList(),
+    'coverage': coverage.map((c) => c.toJson()).toList(),
+    'errors': errors,
+    'rulePackVersion': rulePackVersion,
+    'appsAnalyzed': appsAnalyzed,
+    'background': background,
+  };
 
   factory ScanReport.fromJson(Map<String, dynamic> j) => ScanReport(
-        id: j['id'] as String,
-        mode: _enum(ScanMode.values, j['mode'], ScanMode.quick),
-        platform: _enum(DevicePlatform.values, j['platform'], DevicePlatform.unknown),
-        startedAt: DateTime.parse(j['startedAt'] as String),
-        finishedAt: DateTime.parse(j['finishedAt'] as String),
-        findings: ((j['findings'] as List?) ?? const [])
-            .map((e) => Finding.fromJson(Map<String, dynamic>.from(e as Map)))
-            .toList(),
-        coverage: ((j['coverage'] as List?) ?? const [])
-            .map((e) => CoverageItem.fromJson(Map<String, dynamic>.from(e as Map)))
-            .toList(),
-        errors: ((j['errors'] as List?) ?? const []).map((e) => '$e').toList(),
-        rulePackVersion: (j['rulePackVersion'] as num?)?.toInt(),
-        appsAnalyzed: (j['appsAnalyzed'] as num?)?.toInt() ?? 0,
-        background: j['background'] == true,
-      );
+    id: j['id'] as String,
+    mode: _enum(ScanMode.values, j['mode'], ScanMode.quick),
+    platform: _enum(DevicePlatform.values, j['platform'], DevicePlatform.unknown),
+    startedAt: DateTime.parse(j['startedAt'] as String),
+    finishedAt: DateTime.parse(j['finishedAt'] as String),
+    findings: ((j['findings'] as List?) ?? const []).map((e) => Finding.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+    coverage: ((j['coverage'] as List?) ?? const []).map((e) => CoverageItem.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+    errors: ((j['errors'] as List?) ?? const []).map((e) => '$e').toList(),
+    rulePackVersion: (j['rulePackVersion'] as num?)?.toInt(),
+    appsAnalyzed: (j['appsAnalyzed'] as num?)?.toInt() ?? 0,
+    background: j['background'] == true,
+  );
 }

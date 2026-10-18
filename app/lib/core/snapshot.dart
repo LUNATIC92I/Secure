@@ -3,24 +3,24 @@ import 'models.dart';
 /// Installed application as observed through PackageManager (Android only).
 class AppInfo {
   AppInfo.fromMap(Map<String, dynamic> m)
-      : package = m['package'] as String? ?? '',
-        label = m['label'] as String? ?? (m['package'] as String? ?? ''),
-        versionName = m['versionName'] as String?,
-        firstInstall = _date(m['firstInstall']),
-        lastUpdate = _date(m['lastUpdate']),
-        isSystem = m['isSystem'] == true,
-        debuggable = m['debuggable'] == true,
-        enabled = m['enabled'] != false,
-        targetSdk = (m['targetSdk'] as num?)?.toInt(),
-        hasLauncher = m['hasLauncher'] != false,
-        installer = (m['installer'] as Map?)?['installing'] as String?,
-        initiatingInstaller = (m['installer'] as Map?)?['initiating'] as String?,
-        requestedPermissions = _strings(m['requestedPermissions']),
-        grantedPermissions = _strings(m['grantedPermissions']).toSet(),
-        boundServicePermissions = _strings(m['boundServicePermissions']).toSet(),
-        receiverPermissions = _strings(m['receiverPermissions']).toSet(),
-        signingSha256 = _strings(m['signingSha256']),
-        appOps = ((m['appOps'] as Map?) ?? const {}).map((k, v) => MapEntry('$k', '$v'));
+    : package = m['package'] as String? ?? '',
+      label = m['label'] as String? ?? (m['package'] as String? ?? ''),
+      versionName = m['versionName'] as String?,
+      firstInstall = _date(m['firstInstall']),
+      lastUpdate = _date(m['lastUpdate']),
+      isSystem = m['isSystem'] == true,
+      debuggable = m['debuggable'] == true,
+      enabled = m['enabled'] != false,
+      targetSdk = (m['targetSdk'] as num?)?.toInt(),
+      hasLauncher = m['hasLauncher'] != false,
+      installer = (m['installer'] as Map?)?['installing'] as String?,
+      initiatingInstaller = (m['installer'] as Map?)?['initiating'] as String?,
+      requestedPermissions = _strings(m['requestedPermissions']),
+      grantedPermissions = _strings(m['grantedPermissions']).toSet(),
+      boundServicePermissions = _strings(m['boundServicePermissions']).toSet(),
+      receiverPermissions = _strings(m['receiverPermissions']).toSet(),
+      signingSha256 = _strings(m['signingSha256']),
+      appOps = ((m['appOps'] as Map?) ?? const {}).map((k, v) => MapEntry('$k', '$v'));
 
   final String package;
   final String label;
@@ -62,8 +62,7 @@ class AppInfo {
 
   bool get isAccessibilityProvider => boundServicePermissions.contains('android.permission.BIND_ACCESSIBILITY_SERVICE');
   bool get isDeviceAdminProvider => receiverPermissions.contains('android.permission.BIND_DEVICE_ADMIN');
-  bool get isNotificationListenerProvider =>
-      boundServicePermissions.contains('android.permission.BIND_NOTIFICATION_LISTENER_SERVICE');
+  bool get isNotificationListenerProvider => boundServicePermissions.contains('android.permission.BIND_NOTIFICATION_LISTENER_SERVICE');
   bool get isVpnProvider => boundServicePermissions.contains('android.permission.BIND_VPN_SERVICE');
 
   static DateTime? _date(Object? v) => v is num ? DateTime.fromMillisecondsSinceEpoch(v.toInt()) : null;
@@ -100,8 +99,7 @@ class DeviceSnapshot {
     return v is T ? v : null;
   }
 
-  List<Map<String, dynamic>> list(String key) =>
-      ((device[key] as List?) ?? const []).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  List<Map<String, dynamic>> list(String key) => ((device[key] as List?) ?? const []).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
 
   bool probeAvailable(String key) => !(((device['unavailableProbes'] as List?) ?? const []).contains(key));
 

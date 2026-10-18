@@ -27,8 +27,11 @@ void callbackDispatcher() {
       final settings = await repo.loadSettings();
       if (!settings.dailyAssessment) return true;
       final pack = await RulePackLoader(repo).load(minimumVersion: settings.minRulePackVersion);
-      await ScanCoordinator(repo: repo, source: PlatformSnapshotSource(SentinelNative()), notifier: Notifier())
-          .run(mode: ScanMode.daily, pack: pack, settings: settings, background: true);
+      await ScanCoordinator(
+        repo: repo,
+        source: PlatformSnapshotSource(SentinelNative()),
+        notifier: Notifier(),
+      ).run(mode: ScanMode.daily, pack: pack, settings: settings, background: true);
       return true;
     } catch (_) {
       // Returning false lets WorkManager retry with backoff; the overdue banner covers persistent failure.

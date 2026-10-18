@@ -18,35 +18,32 @@ class SocColors {
   static const purple = Color(0xFFA371F7);
 
   static Color severity(Severity s) => switch (s) {
-        Severity.critical => red,
-        Severity.high => const Color(0xFFFF7B54),
-        Severity.medium => amber,
-        Severity.low => cyan,
-        Severity.informational => muted,
-      };
+    Severity.critical => red,
+    Severity.high => const Color(0xFFFF7B54),
+    Severity.medium => amber,
+    Severity.low => cyan,
+    Severity.informational => muted,
+  };
 
   static Color posture(Posture p) => switch (p) {
-        Posture.strong => green,
-        Posture.fair => cyan,
-        Posture.atRisk => amber,
-        Posture.critical => red,
-        Posture.unknown => muted,
-      };
+    Posture.strong => green,
+    Posture.fair => cyan,
+    Posture.atRisk => amber,
+    Posture.critical => red,
+    Posture.unknown => muted,
+  };
 
   static Color classification(Classification c) => switch (c) {
-        Classification.confirmedMalicious => red,
-        Classification.suspicious => amber,
-        Classification.exposure => cyan,
-        Classification.unverified => purple,
-        Classification.informational => muted,
-      };
+    Classification.confirmedMalicious => red,
+    Classification.suspicious => amber,
+    Classification.exposure => cyan,
+    Classification.unverified => purple,
+    Classification.informational => muted,
+  };
 }
 
 ThemeData socTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: SocColors.blue,
-    brightness: Brightness.dark,
-  ).copyWith(
+  final scheme = ColorScheme.fromSeed(seedColor: SocColors.blue, brightness: Brightness.dark).copyWith(
     surface: SocColors.graphite,
     primary: SocColors.blue,
     secondary: SocColors.cyan,
@@ -64,7 +61,10 @@ ThemeData socTheme() {
       color: SocColors.graphite,
       elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: SocColors.line)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: SocColors.line),
+      ),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: SocColors.graphite,

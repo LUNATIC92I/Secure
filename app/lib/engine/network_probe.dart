@@ -38,29 +38,39 @@ class NetworkProbe {
     }
     final findings = <Finding>[];
     if (failures.isNotEmpty) {
-      findings.add(Finding(
-        ruleId: 'NET-TLS-001',
-        ruleVersion: 1,
-        platform: platform,
-        component: 'tls',
-        detectedAt: now,
-        title: const LText('TLS certificate validation failed', 'Échec de validation des certificats TLS'),
-        description: const LText(
+      findings.add(
+        Finding(
+          ruleId: 'NET-TLS-001',
+          ruleVersion: 1,
+          platform: platform,
+          component: 'tls',
+          detectedAt: now,
+          title: const LText('TLS certificate validation failed', 'Échec de validation des certificats TLS'),
+          description: const LText(
             'Connections to well-known sites presented certificates the system does not trust. This happens behind captive portals, with corporate inspection proxies, or during a man-in-the-middle attack.',
-            'Des connexions vers des sites connus ont présenté des certificats non reconnus par le système. Cela arrive derrière un portail captif, un proxy d’inspection d’entreprise ou lors d’une attaque de l’homme du milieu.'),
-        severity: Severity.high,
-        confidence: failures.length >= 2 ? Confidence.high : Confidence.medium,
-        classification: Classification.suspicious,
-        category: FindingCategory.network,
-        method: const LText('TLS handshake with system trust store', 'Poignée de main TLS avec le magasin de confiance système'),
-        limitations: const LText('Targeted interception of other domains would not be visible.', 'Une interception ciblée d’autres domaines ne serait pas visible.'),
-        evidence: failures,
-        remediation: const [
-          RemediationStep(LText('Disconnect from this network and avoid signing in to accounts until resolved.',
-              'Déconnectez-vous de ce réseau et évitez de vous connecter à vos comptes.')),
-          RemediationStep(LText('Open Wi-Fi settings', 'Ouvrir les réglages Wi-Fi'), action: 'openSettings', target: 'wifi'),
-        ],
-      ));
+            'Des connexions vers des sites connus ont présenté des certificats non reconnus par le système. Cela arrive derrière un portail captif, un proxy d’inspection d’entreprise ou lors d’une attaque de l’homme du milieu.',
+          ),
+          severity: Severity.high,
+          confidence: failures.length >= 2 ? Confidence.high : Confidence.medium,
+          classification: Classification.suspicious,
+          category: FindingCategory.network,
+          method: const LText('TLS handshake with system trust store', 'Poignée de main TLS avec le magasin de confiance système'),
+          limitations: const LText(
+            'Targeted interception of other domains would not be visible.',
+            'Une interception ciblée d’autres domaines ne serait pas visible.',
+          ),
+          evidence: failures,
+          remediation: const [
+            RemediationStep(
+              LText(
+                'Disconnect from this network and avoid signing in to accounts until resolved.',
+                'Déconnectez-vous de ce réseau et évitez de vous connecter à vos comptes.',
+              ),
+            ),
+            RemediationStep(LText('Open Wi-Fi settings', 'Ouvrir les réglages Wi-Fi'), action: 'openSettings', target: 'wifi'),
+          ],
+        ),
+      );
     }
     return ProbeResult(findings, completed: reachable > 0 || failures.isNotEmpty);
   }

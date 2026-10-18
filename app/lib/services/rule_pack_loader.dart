@@ -29,8 +29,7 @@ class RulePackLoader {
     final stored = await repo.loadRulePack();
     if (stored == null) return bundled;
     try {
-      final updated = await RulePack.loadVerified(Uint8List.fromList(utf8.encode(stored.$1)), stored.$2,
-          source: 'update', minimumVersion: minimumVersion);
+      final updated = await RulePack.loadVerified(Uint8List.fromList(utf8.encode(stored.$1)), stored.$2, source: 'update', minimumVersion: minimumVersion);
       return updated.version >= bundled.version ? updated : bundled;
     } on RulePackException catch (e) {
       lastError = 'Stored update rejected: ${e.message}';
@@ -41,9 +40,7 @@ class RulePackLoader {
   /// Downloads `/v1/rules/latest` from the configured backend and validates it
   /// before persisting. Returns the new pack or throws.
   Future<RulePack> update(Uri backend, String token, {required int currentVersion}) async {
-    final res = await http
-        .get(backend.resolve('/v1/rules/latest'), headers: {'Authorization': 'Bearer $token'})
-        .timeout(const Duration(seconds: 15));
+    final res = await http.get(backend.resolve('/v1/rules/latest'), headers: {'Authorization': 'Bearer $token'}).timeout(const Duration(seconds: 15));
     if (res.statusCode != 200) throw RulePackException('HTTP ${res.statusCode}');
     final j = jsonDecode(res.body) as Map<String, dynamic>;
     final body = j['body'] as String? ?? '';

@@ -7,19 +7,19 @@ import 'package:sentinel_mobile_soc/engine/scoring.dart';
 import 'fixtures.dart';
 
 Finding f(Severity s, Confidence c, Classification k, {FindingCategory cat = FindingCategory.configuration, String id = 'X'}) => Finding(
-      ruleId: id,
-      ruleVersion: 1,
-      platform: DevicePlatform.android,
-      title: const LText('t', 't'),
-      description: const LText('d', 'd'),
-      severity: s,
-      confidence: c,
-      classification: k,
-      category: cat,
-      method: const LText('m', 'm'),
-      limitations: const LText('l', 'l'),
-      component: '$id$s$c$k$cat',
-    );
+  ruleId: id,
+  ruleVersion: 1,
+  platform: DevicePlatform.android,
+  title: const LText('t', 't'),
+  description: const LText('d', 'd'),
+  severity: s,
+  confidence: c,
+  classification: k,
+  category: cat,
+  method: const LText('m', 'm'),
+  limitations: const LText('l', 'l'),
+  component: '$id$s$c$k$cat',
+);
 
 const checked = [CoverageItem('a', LText('a', 'a'), CoverageStatus.checked)];
 
@@ -111,7 +111,11 @@ void main() {
     });
 
     test('report JSON round-trip preserves findings and coverage', () async {
-      final r = await ScanEngine().run(source: FixtureSource(androidSnapshot(apps: [stalkerApp()])), pack: RulePack.empty(), mode: ScanMode.comprehensive);
+      final r = await ScanEngine().run(
+        source: FixtureSource(androidSnapshot(apps: [stalkerApp()])),
+        pack: RulePack.empty(),
+        mode: ScanMode.comprehensive,
+      );
       final back = ScanReport.fromJson(r.toJson());
       expect(back.findings.length, r.findings.length);
       expect(back.coverage.length, r.coverage.length);

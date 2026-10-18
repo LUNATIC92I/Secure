@@ -35,19 +35,34 @@ void main() {
       final pub = base64Encode((await kp.extractPublicKey()).bytes);
       final ok = await RulePack.loadVerified(Uint8List.fromList(body), base64Encode(sig.bytes), trustedKeys: [pub]);
       expect(ok.version, 2);
-      expect(() => RulePack.loadVerified(Uint8List.fromList(body), base64Encode(sig.bytes), trustedKeys: [pub], minimumVersion: 3),
-          throwsA(isA<RulePackException>()), reason: 'rollback protection');
+      expect(
+        () => RulePack.loadVerified(Uint8List.fromList(body), base64Encode(sig.bytes), trustedKeys: [pub], minimumVersion: 3),
+        throwsA(isA<RulePackException>()),
+        reason: 'rollback protection',
+      );
     });
 
     test('schema validation rejects malformed indicators', () {
-      expect(() => packWith([{'type': 'file_sha256', 'value': 'nothex'}]), throwsA(isA<RulePackException>()));
-      expect(() => packWith([{'type': 'exec', 'value': 'x'}]), throwsA(isA<RulePackException>()));
+      expect(
+        () => packWith([
+          {'type': 'file_sha256', 'value': 'nothex'},
+        ]),
+        throwsA(isA<RulePackException>()),
+      );
+      expect(
+        () => packWith([
+          {'type': 'exec', 'value': 'x'},
+        ]),
+        throwsA(isA<RulePackException>()),
+      );
       expect(() => RulePack.parse('{"schema":2}'), throwsA(isA<RulePackException>()));
       expect(() => RulePack.parse('not json'), throwsA(isA<RulePackException>()));
     });
 
     test('domain lookup matches parent domains only', () {
-      final pack = packWith([{'type': 'domain', 'value': 'evil.example', 'family': 'f', 'category': 'phishing', 'source': 's'}]);
+      final pack = packWith([
+        {'type': 'domain', 'value': 'evil.example', 'family': 'f', 'category': 'phishing', 'source': 's'},
+      ]);
       expect(pack.lookupDomain('login.evil.example'), isNotNull);
       expect(pack.lookupDomain('notevil.example'), isNull);
     });

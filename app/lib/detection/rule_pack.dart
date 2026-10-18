@@ -8,9 +8,7 @@ import 'yara_lite.dart';
 /// Ed25519 public keys allowed to sign rule packs (base64, 32 bytes).
 /// Rotate by adding the new key before publishing packs signed with it.
 /// The matching private key is never stored in this repository (see tool/README.md).
-const trustedRuleSigningKeys = <String>[
-  '2IAEVilwc0SNhvg/CEnEYZvBSMiYzGzKAHWw5dvSFmg=',
-];
+const trustedRuleSigningKeys = <String>['2IAEVilwc0SNhvg/CEnEYZvBSMiYzGzKAHWw5dvSFmg='];
 
 class RulePackException implements Exception {
   RulePackException(this.message);
@@ -21,15 +19,7 @@ class RulePackException implements Exception {
 
 /// Indicator of compromise from a curated, attributed source.
 class Indicator {
-  Indicator({
-    required this.type,
-    required this.value,
-    required this.family,
-    required this.category,
-    required this.source,
-    this.license,
-    this.test = false,
-  });
+  Indicator({required this.type, required this.value, required this.family, required this.category, required this.source, this.license, this.test = false});
 
   /// package | cert_sha256 | file_sha256 | domain | url_prefix
   final String type;
@@ -66,14 +56,14 @@ class Indicator {
   }
 
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'value': value,
-        'family': family,
-        'category': category,
-        'source': source,
-        if (license != null) 'license': license,
-        if (test) 'test': true,
-      };
+    'type': type,
+    'value': value,
+    'family': family,
+    'category': category,
+    'source': source,
+    if (license != null) 'license': license,
+    if (test) 'test': true,
+  };
 }
 
 class RulePack {
@@ -188,7 +178,10 @@ class RulePack {
         continue;
       }
       if (pub.length != 32) continue;
-      if (await algo.verify(body, signature: Signature(sig, publicKey: SimplePublicKey(pub, type: KeyPairType.ed25519)))) {
+      if (await algo.verify(
+        body,
+        signature: Signature(sig, publicKey: SimplePublicKey(pub, type: KeyPairType.ed25519)),
+      )) {
         ok = true;
         break;
       }
