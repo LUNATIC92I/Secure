@@ -25,7 +25,7 @@ flutter build apk --release --split-per-abi    # APK Android
 flutter build ios --release --no-codesign      # iOS (sur macOS)
 ```
 
-Installation sur téléphone et iPhone : voir [`docs/BUILD_RELEASE.md`](docs/BUILD_RELEASE.md).
+Installation sur téléphone et iPhone : voir [`docs/BUILD_RELEASE.md`](docs/BUILD_RELEASE.md) et le guide pas à pas [`docs/INSTALL_IPHONE.md`](docs/INSTALL_IPHONE.md).
 
 ## Documentation
 
