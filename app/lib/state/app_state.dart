@@ -25,7 +25,7 @@ import '../services/rule_pack_loader.dart';
 import '../services/scan_coordinator.dart';
 
 class AppState extends ChangeNotifier {
-  AppState({required this.repo, required this.native, SnapshotSource? source, Notifier? notifier, RulePackLoader? loader})
+  AppState({required this.repo, required this.native, SnapshotSource? source, Notifier? notifier, RulePackLoader? loader, this.platformOverride})
     : source = source ?? PlatformSnapshotSource(native),
       notifier = notifier ?? Notifier(),
       loader = loader ?? RulePackLoader(repo);
@@ -35,6 +35,9 @@ class AppState extends ChangeNotifier {
   final SnapshotSource source;
   final Notifier notifier;
   final RulePackLoader loader;
+
+  /// Lets tests and screenshot renders run as a given platform on any host.
+  final DevicePlatform? platformOverride;
 
   AppSettings settings = AppSettings();
   RulePack pack = RulePack.empty();
@@ -52,7 +55,8 @@ class AppState extends ChangeNotifier {
   /// Pending URL shared into the app (share sheet / URL scheme).
   String? sharedUrl;
 
-  DevicePlatform get platform => Platform.isAndroid ? DevicePlatform.android : (Platform.isIOS ? DevicePlatform.ios : DevicePlatform.unknown);
+  DevicePlatform get platform =>
+      platformOverride ?? (Platform.isAndroid ? DevicePlatform.android : (Platform.isIOS ? DevicePlatform.ios : DevicePlatform.unknown));
   String get lang => settings.languageCode ?? PlatformDispatcher.instance.locale.languageCode;
   bool get scanning => scanningMode != null;
 

@@ -223,13 +223,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _metricsGrid(BuildContext context, List<(String, int, Color)> items) => LayoutBuilder(
     builder: (context, c) {
       final cols = c.maxWidth > 600 ? 4 : 2;
-      return GridView.count(
-        crossAxisCount: cols,
+      // Fixed tile height scales with the user's text size so labels never clip.
+      final height = 52 + 34 * MediaQuery.textScalerOf(context).scale(1);
+      return GridView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        childAspectRatio: 2.3,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cols, mainAxisExtent: height, mainAxisSpacing: 8, crossAxisSpacing: 8),
         children: [
           for (final (label, n, color) in items)
             Semantics(
