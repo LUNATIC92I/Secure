@@ -13,8 +13,8 @@ class YaraRule {
   final String name;
   final List<String> tags;
   final Map<String, String> meta;
-  final Map<String, List<_BytePattern>> strings;
-  final _Expr _condition;
+  final Map<String, List<BytePattern>> strings;
+  final YaraCondition _condition;
 
   /// Returns the identifiers of matched strings when the condition holds, else null.
   Set<String>? match(Uint8List data) {
@@ -43,8 +43,8 @@ class YaraLite {
 
 // ---------------------------------------------------------------- patterns
 
-class _BytePattern {
-  _BytePattern(this.bytes, this.mask, {this.nocase = false});
+class BytePattern {
+  BytePattern(this.bytes, this.mask, {this.nocase = false});
 
   final List<int> bytes;
 
@@ -75,27 +75,27 @@ class _BytePattern {
 
 // ---------------------------------------------------------------- conditions
 
-abstract class _Expr {
+abstract class YaraCondition {
   bool eval(Set<String> hits, Set<String> all);
 }
 
-class _Ref extends _Expr {
+class _Ref extends YaraCondition {
   _Ref(this.id);
   final String id;
   @override
   bool eval(Set<String> hits, Set<String> all) => hits.contains(id);
 }
 
-class _Not extends _Expr {
+class _Not extends YaraCondition {
   _Not(this.e);
-  final _Expr e;
+  final YaraCondition e;
   @override
   bool eval(Set<String> hits, Set<String> all) => !e.eval(hits, all);
 }
 
-class _Bin extends _Expr {
+class _Bin extends YaraCondition {
   _Bin(this.a, this.b, this.isAnd);
-  final _Expr a, b;
+  final YaraCondition a, b;
   final bool isAnd;
   @override
   bool eval(Set<String> hits, Set<String> all) =>
@@ -103,7 +103,7 @@ class _Bin extends _Expr {
 }
 
 /// quantity: -1 = all, 0 = any, N otherwise. set null = them.
-class _Of extends _Expr {
+class _Of extends YaraCondition {
   _Of(this.quantity, this.set);
   final int quantity;
   final List<String>? set;
@@ -223,8 +223,8 @@ class _Parser {
     }
     expect(_T.sym, '{');
     final meta = <String, String>{};
-    final strings = <String, List<_BytePattern>>{};
-    _Expr? cond;
+    final strings = <String, List<BytePattern>>{};
+    YaraCondition? cond;
     while (!accept('}')) {
       final section = expect(_T.ident).v;
       expect(_T.sym, ':');
@@ -252,7 +252,7 @@ class _Parser {
     return YaraRule(name, tags, meta, strings, cond);
   }
 
-  void _checkRefs(_Expr e, Set<String> ids, String rule) {
+  void _checkRefs(YaraCondition e, Set<String> ids, String rule) {
     if (e is _Ref && !ids.contains(e.id)) throw FormatException('$rule: undefined ${e.id}');
     if (e is _Not) _checkRefs(e.e, ids, rule);
     if (e is _Bin) {
@@ -266,7 +266,7 @@ class _Parser {
     }
   }
 
-  List<_BytePattern> _stringDef() {
+  List<BytePattern> _stringDef() {
     final tok = next();
     if (tok.t == _T.hex) {
       final parts = tok.v.trim().split(RegExp(r'\s+')).where((e) => e.isNotEmpty);
@@ -283,7 +283,7 @@ class _Parser {
         }
       }
       if (bytes.isEmpty) throw const FormatException('empty hex string');
-      return [_BytePattern(bytes, mask)];
+      return [BytePattern(bytes, mask)];
     }
     if (tok.t != _T.string) throw FormatException('expected string, got ${tok.v}');
     if (tok.v.isEmpty) throw const FormatException('empty string');
@@ -300,16 +300,16 @@ class _Parser {
     }
     final raw = utf8.encode(tok.v);
     final norm = nocase ? raw.map((b) => b >= 0x41 && b <= 0x5a ? b + 32 : b).toList() : raw;
-    final out = <_BytePattern>[];
-    if (!wide || ascii) out.add(_BytePattern(norm, List.filled(norm.length, true), nocase: nocase));
+    final out = <BytePattern>[];
+    if (!wide || ascii) out.add(BytePattern(norm, List.filled(norm.length, true), nocase: nocase));
     if (wide) {
       final w = <int>[for (final b in norm) ...[b, 0]];
-      out.add(_BytePattern(w, List.filled(w.length, true), nocase: nocase));
+      out.add(BytePattern(w, List.filled(w.length, true), nocase: nocase));
     }
     return out;
   }
 
-  _Expr _or() {
+  YaraCondition _or() {
     var e = _and();
     while (accept('or')) {
       e = _Bin(e, _and(), false);
@@ -317,7 +317,7 @@ class _Parser {
     return e;
   }
 
-  _Expr _and() {
+  YaraCondition _and() {
     var e = _not();
     while (accept('and')) {
       e = _Bin(e, _not(), true);
@@ -325,9 +325,9 @@ class _Parser {
     return e;
   }
 
-  _Expr _not() => accept('not') ? _Not(_not()) : _primary();
+  YaraCondition _not() => accept('not') ? _Not(_not()) : _primary();
 
-  _Expr _primary() {
+  YaraCondition _primary() {
     if (accept('(')) {
       final e = _or();
       expect(_T.sym, ')');

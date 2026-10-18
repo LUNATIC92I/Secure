@@ -9,7 +9,7 @@ import 'yara_lite.dart';
 /// Rotate by adding the new key before publishing packs signed with it.
 /// The matching private key is never stored in this repository (see tool/README.md).
 const trustedRuleSigningKeys = <String>[
-  'REPLACED_AT_SIGNING_TIME',
+  '2IAEVilwc0SNhvg/CEnEYZvBSMiYzGzKAHWw5dvSFmg=',
 ];
 
 class RulePackException implements Exception {
@@ -85,6 +85,7 @@ class RulePack {
     required this.config,
     this.source = 'bundled',
     this.verified = false,
+    this.yaraSource = '',
   }) {
     for (final i in indicators) {
       _index.putIfAbsent(i.type, () => {})[i.value] = i;
@@ -98,6 +99,9 @@ class RulePack {
   final Map<String, dynamic> config;
   final String source;
   final bool verified;
+
+  /// Raw rule text, re-parsed inside the APK-analysis isolate.
+  final String yaraSource;
   final Map<String, Map<String, Indicator>> _index = {};
 
   static RulePack empty() =>
@@ -152,6 +156,7 @@ class RulePack {
       issuedAt: DateTime.tryParse(decoded['issuedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
       indicators: rawIndicators.map((e) => Indicator.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
       yaraRules: yara,
+      yaraSource: yaraText,
       config: Map<String, dynamic>.from(decoded['config'] as Map? ?? const {}),
       source: source,
       verified: verified,

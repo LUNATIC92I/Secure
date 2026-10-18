@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "version": 1,
+  "issuedAt": "2026-10-18T00:00:00Z",
+  "source": "Sentinel bundled pack",
+  "notes": "Bundled indicators are TEST FIXTURES only. Load real feeds through the backend (see backend/README.md: URLhaus, Echap stalkerware-indicators).",
+  "config": {
+    "androidPatchWarnDays": 90,
+    "androidPatchCriticalDays": 365,
+    "androidMinSupportedSdk": 31,
+    "iosLatestMajor": 26
+  },
+  "indicators": [
+    {
+      "type": "package",
+      "value": "io.sentinel.testfixture.stalkerware",
+      "family": "TEST-Stalkerware",
+      "category": "stalkerware",
+      "source": "Sentinel test fixture",
+      "license": "CC0-1.0",
+      "test": true
+    },
+    {
+      "type": "package",
+      "value": "io.sentinel.testfixture.trojan",
+      "family": "TEST-Trojan",
+      "category": "malware",
+      "source": "Sentinel test fixture",
+      "license": "CC0-1.0",
+      "test": true
+    },
+    {
+      "type": "file_sha256",
+      "value": "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+      "family": "EICAR-Test-File",
+      "category": "test",
+      "source": "EICAR",
+      "license": "public test string",
+      "test": true
+    },
+    {
+      "type": "domain",
+      "value": "phishing.sentinel-test.invalid",
+      "family": "TEST-Phishing",
+      "category": "phishing",
+      "source": "Sentinel test fixture (.invalid TLD, never resolvable)",
+      "license": "CC0-1.0",
+      "test": true
+    },
+    {
+      "type": "url_prefix",
+      "value": "testsafebrowsing.appspot.com/s/phishing.html",
+      "family": "Google Safe Browsing test page",
+      "category": "phishing",
+      "source": "Google Safe Browsing test URLs",
+      "test": true
+    },
+    {
+      "type": "url_prefix",
+      "value": "testsafebrowsing.appspot.com/s/malware.html",
+      "family": "Google Safe Browsing test page",
+      "category": "malware",
+      "source": "Google Safe Browsing test URLs",
+      "test": true
+    }
+  ],
+  "yara": "// Sentinel YARA-lite rules. Heuristic unless meta type = \"signature\".\nrule EICAR_Test_File {\n  meta:\n    type = \"signature\"\n    severity = \"high\"\n    title_en = \"EICAR anti-malware test file\"\n    title_fr = \"Fichier de test antivirus EICAR\"\n    description = \"Harmless industry-standard test string used to verify detection pipelines.\"\n    description_fr = \"Chaîne de test standard et inoffensive servant à vérifier la détection.\"\n  strings:\n    $eicar = \"X5O!P%@AP[4\\\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*\"\n  condition:\n    $eicar\n}\n\nrule Dynamic_Code_Loading {\n  meta:\n    severity = \"low\"\n    title_en = \"Loads code at runtime\"\n    title_fr = \"Charge du code à l'exécution\"\n    description = \"Uses DexClassLoader/InMemoryDexClassLoader; common in SDKs, also used by droppers to fetch payloads after review.\"\n    description_fr = \"Utilise DexClassLoader/InMemoryDexClassLoader ; courant dans les SDK, aussi utilisé par les droppers.\"\n  strings:\n    $a = \"Ldalvik/system/DexClassLoader;\"\n    $b = \"Ldalvik/system/InMemoryDexClassLoader;\"\n    $c = \"loadClass\"\n  condition:\n    ($a or $b) and $c\n}\n\nrule Accessibility_Overlay_Abuse {\n  meta:\n    severity = \"medium\"\n    title_en = \"Accessibility automation with overlays\"\n    title_fr = \"Automatisation d'accessibilité avec superpositions\"\n    description = \"Combines reading the active window, performing global actions and drawing overlays: the toolkit of banking trojans.\"\n    description_fr = \"Combine lecture de la fenêtre active, actions globales et superpositions : la panoplie des chevaux de Troie bancaires.\"\n  strings:\n    $root = \"getRootInActiveWindow\"\n    $glob = \"performGlobalAction\"\n    $over = \"TYPE_APPLICATION_OVERLAY\"\n    $over2 = \"addView\"\n    $acc = \"Landroid/accessibilityservice/AccessibilityService;\"\n  condition:\n    $acc and $root and $glob and ($over or $over2)\n}\n\nrule Hidden_Launcher_Icon {\n  meta:\n    severity = \"low\"\n    title_en = \"Can hide its launcher icon\"\n    title_fr = \"Peut masquer son icône\"\n    description = \"Disables its own launcher component, a technique stalkerware uses to stay out of sight.\"\n    description_fr = \"Désactive son propre composant de lancement, technique utilisée par les stalkerwares pour rester invisibles.\"\n  strings:\n    $set = \"setComponentEnabledSetting\"\n    $launcher = \"android.intent.category.LAUNCHER\"\n  condition:\n    $set and $launcher\n}\n\nrule Root_Command_Execution {\n  meta:\n    severity = \"low\"\n    title_en = \"Executes root shell commands\"\n    title_fr = \"Exécute des commandes root\"\n    description = \"Spawns 'su' through Runtime.exec; legitimate for root tools, abused by malware to escalate.\"\n    description_fr = \"Lance 'su' via Runtime.exec ; légitime pour les outils root, abusé par des malwares.\"\n  strings:\n    $rt = \"Ljava/lang/Runtime;\"\n    $exec = \"exec\"\n    $su1 = \"/system/xbin/su\"\n    $su2 = \"/system/bin/su\"\n  condition:\n    $rt and $exec and any of ($su1, $su2)\n}\n\nrule Call_Audio_Recording {\n  meta:\n    severity = \"medium\"\n    title_en = \"Records phone-call audio\"\n    title_fr = \"Enregistre l'audio des appels\"\n    description = \"References call-state monitoring together with media recording, consistent with covert call recording.\"\n    description_fr = \"Associe surveillance de l'état d'appel et enregistrement audio, compatible avec un enregistrement d'appels caché.\"\n  strings:\n    $rec = \"Landroid/media/MediaRecorder;\"\n    $state = \"android.intent.action.PHONE_STATE\"\n    $src = \"setAudioSource\"\n  condition:\n    all of them\n}\n\nrule SMS_Interception {\n  meta:\n    severity = \"medium\"\n    title_en = \"Intercepts SMS messages\"\n    title_fr = \"Intercepte les SMS\"\n    description = \"Receives SMS broadcasts and extracts message bodies; used for stealing one-time codes.\"\n    description_fr = \"Reçoit les SMS et extrait leur contenu ; utilisé pour voler des codes à usage unique.\"\n  strings:\n    $rx = \"android.provider.Telephony.SMS_RECEIVED\"\n    $pdu = \"createFromPdu\"\n    $body = \"getMessageBody\"\n  condition:\n    $rx and $pdu and $body\n}\n\nrule Device_Admin_Lock {\n  meta:\n    severity = \"low\"\n    title_en = \"Can lock or wipe the device\"\n    title_fr = \"Peut verrouiller ou effacer l'appareil\"\n    description = \"Uses device-admin lock/wipe APIs (ransomware lockers, also anti-theft tools).\"\n    description_fr = \"Utilise les API d'administration verrouiller/effacer (rançongiciels, aussi antivols).\"\n  strings:\n    $recv = \"Landroid/app/admin/DeviceAdminReceiver;\"\n    $lock = \"lockNow\"\n    $wipe = \"wipeData\"\n  condition:\n    $recv and ($lock or $wipe)\n}\n"
+}
