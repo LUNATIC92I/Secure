@@ -18,21 +18,29 @@ void main() {
   test('register, publish signed pack, app verifies it, reputation lookup', () async {
     final base = Uri.parse(url!);
     Future<String> register([String? bootstrap]) async {
-      final r = await http.post(base.resolve('/v1/devices/register'),
-          headers: {'Content-Type': 'application/json'}, body: jsonEncode({if (bootstrap != null) 'bootstrap_token': bootstrap}));
+      final r = await http.post(
+        base.resolve('/v1/devices/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'bootstrap_token': ?bootstrap}),
+      );
       expect(r.statusCode, 201, reason: r.body);
       return (jsonDecode(r.body) as Map)['token'] as String;
     }
 
     final admin = await register(boot);
-    final r = await http.post(base.resolve('/v1/admin/indicators'),
-        headers: {'Authorization': 'Bearer $admin', 'Content-Type': 'application/json'},
-        body: jsonEncode([
-          {'type': 'domain', 'value': 'e2e-phish.example', 'family': 'E2E', 'category': 'phishing', 'source': 'e2e'}
-        ]));
+    final r = await http.post(
+      base.resolve('/v1/admin/indicators'),
+      headers: {'Authorization': 'Bearer $admin', 'Content-Type': 'application/json'},
+      body: jsonEncode([
+        {'type': 'domain', 'value': 'e2e-phish.example', 'family': 'E2E', 'category': 'phishing', 'source': 'e2e'},
+      ]),
+    );
     expect(r.statusCode, 201);
-    final pub = await http.post(base.resolve('/v1/admin/rules/publish'),
-        headers: {'Authorization': 'Bearer $admin', 'Content-Type': 'application/json'}, body: jsonEncode({'yara': '', 'config': {}}));
+    final pub = await http.post(
+      base.resolve('/v1/admin/rules/publish'),
+      headers: {'Authorization': 'Bearer $admin', 'Content-Type': 'application/json'},
+      body: jsonEncode({'yara': '', 'config': {}}),
+    );
     expect(pub.statusCode, 201, reason: pub.body);
 
     final device = await register();
