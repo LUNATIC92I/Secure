@@ -17,4 +17,4 @@
 - Release APK is signed with the **debug key** unless `android/key.properties` (or CI secrets) are provided — fine for side-loading tests, not for Play.
 
 ## Not verified in the build environment
-See `TESTING.md` — in particular: no physical device or emulator was available (no KVM), the iOS project could not be compiled (Linux host), Docker Compose could not be started (no Docker daemon), and battery consumption was not measured.
+See `TESTING.md` — in particular: no physical device or emulator was available (no KVM), the iOS app was compiled only in CI (macOS runner), never run on an iPhone, Docker Compose could not be started (no Docker daemon), and battery consumption was not measured.

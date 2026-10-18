@@ -14,8 +14,8 @@ Environment: Linux x86_64 container, Flutter 3.47.7 / Dart 3.13.5, Android SDK 3
 | Alembic migration | `alembic upgrade head` (SQLite) | ✅ (bug found and fixed: CLI could not import `app`) |
 | Android debug + release build | `flutter build apk --release [--split-per-abi]` | ✅ builds; manifest/permissions verified with `aapt2 dump badging`; signature checked with `apksigner` (debug key) |
 | Kotlin native module compile | part of the Gradle build | ✅ |
-| iOS build | `flutter build ios --no-codesign` | ⏳ not runnable here — configured in GitHub Actions (`.github/workflows/mobile.yml`, macOS runner) |
-| Swift native module compile | — | ⏳ unverified until the macOS CI job runs |
+| iOS build | `flutter build ios --release --no-codesign` on GitHub Actions macOS runner (run 39111075818) | ✅ builds; unsigned IPA artifact produced |
+| Swift native module compile | same macOS CI job | ✅ compiles · ⏳ not run on a physical iPhone |
 | Docker Compose stack | `docker compose up` | ⏳ not verified (no Docker daemon) |
 
 ## Test categories
@@ -32,7 +32,7 @@ Environment: Linux x86_64 container, Flutter 3.47.7 / Dart 3.13.5, Android SDK 3
 | False-positive tests | benign phone (Signal, Maps) yields no medium+ finding; FP feedback persists | ✅ |
 | Security regression | rule-pack tamper/untrusted key/rollback, AES-GCM tamper + AAD swap, IDOR on incidents, RBAC, rate limit, body limit, validation without echo | ✅ |
 | API tests | `backend/tests/test_api.py` | ✅ |
-| Dependency audit | CI: `flutter pub outdated`, `pip-audit` | ⏳ runs in CI |
+| Dependency audit | CI: `flutter pub outdated`, `pip-audit` | ✅ runs in CI (informational, non-blocking) |
 | Performance | APK YARA scan runs in an isolate, 64 MB per-entry cap | ⏳ not benchmarked on device |
 | Battery | — | ⏳ not measured (requires device + Battery Historian) |
 
