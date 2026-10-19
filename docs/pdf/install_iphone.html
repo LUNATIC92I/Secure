@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<title>Installer Sentinel Mobile SOC sur iPhone</title>
+<style>
+@font-face{font-family:R;src:url(file:///opt/sdk/flutter/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf)}
+@font-face{font-family:R;font-weight:500;src:url(file:///opt/sdk/flutter/bin/cache/artifacts/material_fonts/Roboto-Medium.ttf)}
+@font-face{font-family:R;font-weight:700;src:url(file:///opt/sdk/flutter/bin/cache/artifacts/material_fonts/Roboto-Bold.ttf)}
+@page{size:A4;margin:16mm 16mm 18mm}
+:root{--ink:#11161d;--muted:#5b6673;--blue:#2f81f7;--line:#dfe4ea;--soft:#f3f6fa;--amber:#b7791f;--amberbg:#fff7e6;--green:#1f8a3b;--red:#c53030}
+*{box-sizing:border-box}
+body{font-family:R,Arial,sans-serif;color:var(--ink);font-size:10.5pt;line-height:1.45;margin:0}
+.cover{background:#07090c;color:#fff;border-radius:14px;padding:22px 24px;display:flex;gap:20px;align-items:center;margin-bottom:16px}
+.cover img{width:120px;border-radius:12px;border:1px solid #2a313c}
+.brand{letter-spacing:5px;font-weight:700;font-size:11pt;color:#3da9fc}
+h1{font-size:21pt;margin:6px 0 6px;line-height:1.15}
+.cover p{color:#c9d1d9;margin:0}
+h2{break-after:avoid;font-size:14pt;margin:18px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--blue);break-after:avoid}
+h3{font-size:11.5pt;margin:12px 0 6px;break-after:avoid}
+.req{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;background:var(--soft);border-radius:10px;padding:10px 14px}
+.req div:before{content:"✓ ";color:var(--green);font-weight:700}
+.note{border-left:4px solid var(--amber);background:var(--amberbg);padding:8px 12px;border-radius:6px;margin:10px 0}
+.warn{border-left:4px solid var(--red);background:#fdecec;padding:8px 12px;border-radius:6px;margin:10px 0}
+ol.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+ol.steps>li{counter-increment:s;position:relative;padding:8px 0 8px 40px;border-bottom:1px solid var(--line);break-inside:avoid}
+ol.steps>li:before{content:counter(s);position:absolute;left:0;top:7px;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;text-align:center;line-height:26px}
+ol.steps>li:last-child{border-bottom:0}
+.path{font-weight:500;background:var(--soft);padding:1px 6px;border-radius:4px;white-space:nowrap}
+code{font-family:monospace;background:var(--soft);padding:1px 5px;border-radius:4px;font-size:9.5pt}
+.badge{display:inline-block;font-size:8.5pt;font-weight:700;color:#fff;background:var(--green);border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+table{break-inside:avoid;width:100%;border-collapse:collapse;margin-top:6px;font-size:9.8pt}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{break-inside:avoid;border:1px solid var(--line);border-radius:10px;padding:10px 12px;break-inside:avoid}
+ul{margin:4px 0 4px 18px;padding:0}
+.foot{margin-top:16px;color:var(--muted);font-size:8.8pt;border-top:1px solid var(--line);padding-top:8px}
+.pb{break-before:page}
+</style></head><body>
+
+<div class="cover">
+  <img src="../screenshots/01_tableau_de_bord.png" alt="">
+  <div>
+    <div class="brand">SENTINEL · MOBILE SOC</div>
+    <h1>Installer l'application sur iPhone</h1>
+    <p>Guide pas à pas pour les testeurs de la version bêta — gratuit, environ 10 minutes.</p>
+  </div>
+</div>
+
+<p>L'application n'est pas encore publiée sur l'App Store. Pendant la bêta, vous l'installez à partir du fichier <code>SentinelSOC-ios-unsigned.ipa</code>, signé avec <b>votre propre identifiant Apple</b> (gratuit).</p>
+
+<h2>Ce qu'il vous faut</h2>
+<div class="req">
+  <div>iPhone sous iOS 15 ou plus récent</div>
+  <div>Ordinateur Windows ou Mac</div>
+  <div>Câble USB de l'iPhone</div>
+  <div>Identifiant Apple (gratuit)</div>
+  <div>Le fichier <code>SentinelSOC-ios-unsigned.ipa</code></div>
+  <div>Connexion Internet</div>
+</div>
+<div class="note"><b>À savoir :</b> avec un identifiant Apple gratuit, l'application fonctionne <b>7 jours</b>, puis doit être ré‑signée (2 minutes, voir « Renouveler tous les 7 jours »). Vos données dans l'application sont conservées.</div>
+
+<h2>Méthode 1 — Sideloadly <span class="badge">RECOMMANDÉE</span></h2>
+<h3>A. Préparer l'ordinateur</h3>
+<ul>
+  <li><b>Windows :</b> installez <b>iTunes</b> et <b>iCloud</b> depuis le site d'Apple (versions « hors Microsoft Store »), puis <b>Sideloadly</b> depuis <i>sideloadly.io</i>.</li>
+  <li><b>Mac :</b> installez <b>Sideloadly</b> depuis <i>sideloadly.io</i>.</li>
+</ul>
+
+<h3>B. Installer l'application</h3>
+<ol class="steps">
+  <li>Branchez l'iPhone à l'ordinateur et déverrouillez‑le. Si la question apparaît, touchez <b>« Faire confiance »</b> et saisissez le code de l'iPhone.</li>
+  <li>Ouvrez <b>Sideloadly</b> : votre iPhone apparaît dans la liste des appareils.</li>
+  <li>Glissez le fichier <code>SentinelSOC-ios-unsigned.ipa</code> dans la fenêtre de Sideloadly.</li>
+  <li>Saisissez votre <b>identifiant Apple</b>, puis cliquez sur <b>Start</b>.</li>
+  <li>Entrez votre mot de passe Apple et, si demandé, le <b>code de validation</b> reçu sur vos appareils.</li>
+  <li>Attendez le message <b>« Done »</b> (environ 1 minute). L'icône Sentinel SOC apparaît sur l'iPhone.</li>
+</ol>
+
+<h3>C. Autoriser l'application sur l'iPhone</h3>
+<ol class="steps">
+  <li><b>Activer le mode développeur</b> (iOS 16 et plus récent) :<br>
+    <span class="path">Réglages → Confidentialité et sécurité → Mode développeur</span><br>
+    Activez‑le, redémarrez l'iPhone, puis confirmez <b>« Activer »</b> au redémarrage.</li>
+  <li><b>Faire confiance au développeur :</b><br>
+    <span class="path">Réglages → Général → VPN et gestion de l'appareil</span><br>
+    Touchez votre identifiant Apple, puis <b>« Faire confiance »</b>.</li>
+  <li>Ouvrez <b>Sentinel SOC</b> depuis l'écran d'accueil. ✅</li>
+</ol>
+
+<h2>Autres méthodes</h2>
+<div class="cols">
+  <div class="card">
+    <h3>Méthode 2 — AltStore</h3>
+    <p style="margin:0 0 6px">Renouvelle l'application automatiquement par Wi‑Fi.</p>
+    <ol style="margin:0 0 0 18px;padding:0">
+      <li>Installez <b>AltServer</b> (<i>altstore.io</i>) sur l'ordinateur.</li>
+      <li>iPhone branché : icône AltServer → <b>Install AltStore</b>.</li>
+      <li>Faites confiance au profil (étape C.2).</li>
+      <li>Transférez le <code>.ipa</code> sur l'iPhone (AirDrop ou Fichiers).</li>
+      <li>AltStore → <b>Mes apps</b> → <b>+</b> → choisissez le fichier.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h3>Méthode 3 — Xcode (Mac, développeurs)</h3>
+    <ol style="margin:0 0 0 18px;padding:0">
+      <li><code>git clone https://github.com/LUNATIC92I/Secure</code></li>
+      <li>Dans <code>app</code> : <code>flutter pub get</code></li>
+      <li>Ouvrez <code>ios/Runner.xcworkspace</code> dans Xcode.</li>
+      <li><b>Runner → Signing &amp; Capabilities</b> : choisissez votre équipe.</li>
+      <li>Sélectionnez l'iPhone, puis <b>▶ Run</b>.</li>
+    </ol>
+  </div>
+</div>
+
+<h2>Renouveler tous les 7 jours</h2>
+<p>Quand l'application ne s'ouvre plus, refaites simplement l'<b>étape B</b> avec le même fichier, ou touchez <b>Actualiser</b> dans AltStore. Inutile de désinstaller : vos résultats et incidents sont conservés.</p>
+
+<h2>Problèmes fréquents</h2>
+<table>
+  <tr><th style="width:38%">Message ou symptôme</th><th>Solution</th></tr>
+  <tr><td>« Développeur non approuvé »</td><td><span class="path">Réglages → Général → VPN et gestion de l'appareil</span> → <b>Faire confiance</b></td></tr>
+  <tr><td>L'application se ferme immédiatement</td><td>Activez le <b>Mode développeur</b>, puis redémarrez l'iPhone</td></tr>
+  <tr><td>« Maximum number of apps »</td><td>Un identifiant gratuit est limité à 3 applications installées ainsi : supprimez‑en une</td></tr>
+  <tr><td>Sideloadly ne voit pas l'iPhone</td><td>Sous Windows, installez iTunes (version du site Apple), rebranchez l'iPhone et touchez « Faire confiance »</td></tr>
+  <tr><td>Erreur de connexion à l'identifiant</td><td>Saisissez le code de validation à deux facteurs ; sinon essayez un identifiant Apple secondaire</td></tr>
+  <tr><td>L'application ne s'ouvre plus après une semaine</td><td>Normal avec un compte gratuit : ré‑signez‑la (étape B)</td></tr>
+</table>
+
+<h2>Ce que Sentinel vérifie sur iPhone</h2>
+<p>iOS isole chaque application : aucune app de l'App Store ne peut lister ou analyser les autres apps installées. Sur iPhone, Sentinel vérifie :</p>
+<div class="cols">
+  <div class="card"><ul style="margin-left:14px">
+    <li>Code de verrouillage et version d'iOS</li>
+    <li>Indicateurs de jailbreak</li>
+    <li>VPN et proxy actifs</li>
+    <li>Liens d'hameçonnage (copier‑coller ou <code>sentinel://scan?url=…</code>)</li>
+  </ul></div>
+  <div class="card"><ul style="margin-left:14px">
+    <li>Traceurs Bluetooth Tile, SmartTag et réseau Localiser (les AirTags sont signalés par iOS lui‑même)</li>
+    <li>Incidents et rapports exportables</li>
+    <li>Guidage vers Contrôle de sécurité, Rapport de confidentialité et profils de gestion</li>
+  </ul></div>
+</div>
+
+<h2>Sécurité</h2>
+<div class="warn">
+  <ul style="margin-left:14px">
+    <li>Téléchargez le fichier <code>.ipa</code> <b>uniquement depuis le lien officiel</b> du projet.</li>
+    <li>Méfiez‑vous des sites proposant d'installer des applications « sans ordinateur » avec des certificats d'entreprise : c'est un vecteur connu de malwares.</li>
+    <li>Sentinel ne demande <b>jamais</b> vos contacts, SMS, appels ni l'accès au micro, et n'envoie aucune donnée sans votre accord.</li>
+  </ul>
+</div>
+
+<div class="foot">Sentinel Mobile SOC — version bêta gratuite. Aucune application mobile ne peut garantir qu'un téléphone est exempt de malware ou de surveillance ; Sentinel indique ce qu'il a vérifié et ce qu'il n'a pas pu vérifier. Code source : github.com/LUNATIC92I/Secure · Un problème ? Envoyez une capture d'écran du message d'erreur et le modèle de votre iPhone.</div>
+</body></html>
